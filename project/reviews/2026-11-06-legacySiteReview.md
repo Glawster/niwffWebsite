@@ -19,7 +19,7 @@ Baseline: archived public site (6 November 2026), five pages. Earlier planning c
 
 ## Proposed information architecture
 
-Home; Play / Find a Club; Competitions & Events; NI Teams; News; Resources; About / Governance; Contact.
+Home; Play / Find a Club; Competitions & Events; International Teams (overview and separate squad pages for age groups); News; Resources; About / Governance; Contact.
 
 Main visitor journey: “I want to play” should answer suitability, location, session, cost and how to contact a club. Website contains authoritative long-lived information; social channels handle community updates.
 
@@ -28,7 +28,7 @@ Main visitor journey: “I want to play” should answer suitability, location, 
 - Clubs represented by structured data fields: name, contacts, venue, schedule, eligibility, fees, social links, last-reviewed date and confirmation state.
 - Club-submitted event: submission -> NIWFF approval -> website publication -> optionally create Facebook content.
 - Historic competitions, results and news remain accessible but never appear as upcoming.
-- National team pages should make male/female and age-category information clear as approved by NIWFF.
+- International Teams is a top-level page with individual squad pages (e.g. Over 60, Over 65, Over 70), approved seasonal rosters and management, fixtures/results, gallery and history. Gender/category information must be explicitly verified by NIWFF.
 - Contact forms need privacy notice, limited retention, anti-spam and accessible labels.
 - Homepage highlights Find a Club, current events, representative teams and recent news.
 - Proposed palette from previous design discussions: green, navy, blue and restrained yellow; branding subject to approval.
