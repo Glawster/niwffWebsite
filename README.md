@@ -46,8 +46,10 @@ A responsive static website prototype now includes Home, Find a Club, Events, In
 
 The agreed staging hostname is `stagingNIWF.hillsboroughwalkingfootball.com`, with a dedicated cPanel document root at `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com` (confirm the actual cPanel path). This does not depend on control of the NIWFF domain's DNS.
 
-For clannEolas staging, use `bash scripts/deployStaging.sh --init` once, then preview with `bash scripts/deployStaging.sh` and deploy with `bash scripts/deployStaging.sh --confirm` after setting `NIWFF_STAGING_ROOT` to the dedicated cPanel document root. This follows the HWFC server Git-pull approach while protecting cPanel authentication files. Do not set the Git repo as DocumentRoot.
+**Deployment is exactly like HWFC:** the Git checkout is the staging web root, and changes are deployed with `git pull --ff-only`. No `rsync` or public subfolder is required. The staging document root is the checkout at `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com`.
 
-To build the isolated web-ready package separately, run `python3 scripts/buildStaging.py`. It writes deployable files to `output/staging/` rather than exposing this entire repository. The `validate-staging.yml` GitHub Action checks JavaScript, validates the build and uploads a staging artifact. See [staging deployment instructions](documentation/stagingDeployment.md).
+A tracked root `.htaccess` prevents HTTP access to `.git`, legacy `data/` (including recovered assets), documentation, project files and scripts. Verify that Apache applies the rules before sharing the staging link. Existing cPanel `.htaccess` directives must be preserved/merged.
+
+See [staging deployment instructions](documentation/stagingDeployment.md) for cloning/moving the repo into the web root, DNS/SSL checks and the necessary 403 tests. The optional static package builder and CI remain available for separate archived artifacts but are not part of normal deployment.
 
 The replacement has **not** been deployed to a server. Do not change the existing DNS/hosting until new content, review workflow, accessibility, redirects and rollback are verified.
