@@ -41,6 +41,16 @@ class StagingTests(unittest.TestCase):
             self.assertFalse((out / "REQUIREMENTS.md").exists())
             self.assertFalse((out / ".github").exists())
 
+    def test_repo_root_apache_protects_archives(self):
+        rules = (ROOT / ".htaccess").read_text(encoding="utf-8")
+        for entry in (".git", ".github", "data", "documentation",
+                      "project", "scripts", "tests", "output"):
+            self.assertIn(entry, rules)
+        self.assertIn("Require all denied", rules)
+        self.assertIn("Options -Indexes", rules)
+        self.assertIn('X-Robots-Tag', rules)
+        self.assertIn('FilesMatch', rules)
+
     def test_navigation_and_team_routes_in_script(self):
         js = (ROOT / "assets/site.js").read_text(encoding="utf-8")
         for path in ("/find-a-club/", "/competitions/", "/international-teams/",
