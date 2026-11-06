@@ -19,8 +19,8 @@ Default: PREVIEW ONLY (rsync --dry-run), with no Git pull or file changes.
            the staging document root (requires --init once).
 --help     Show this information.
 
-The path must resolve inside a home public_html directory, contain the name
-'niwff', and not be public_html itself. Never use a live domain's document root.
+The target must be the dedicated public_html/stagingNIWF.hillsboroughwalkingfootball.com
+folder. Never use a live domain's document root.
 USAGE
 }
 
@@ -43,7 +43,7 @@ while (($#)); do
 done
 
 if [[ -z "$TARGET" ]]; then
-  echo "Supply --target /home/ACCOUNT/public_html/niwff-staging.clanneolas.com (or NIWFF_STAGING_ROOT)." >&2
+  echo "Supply --target /home/ACCOUNT/public_html/stagingNIWF.hillsboroughwalkingfootball.com (or NIWFF_STAGING_ROOT)." >&2
   exit 2
 fi
 if [[ ! -d "$TARGET" ]]; then
@@ -51,17 +51,14 @@ if [[ ! -d "$TARGET" ]]; then
   exit 2
 fi
 TARGET="$(cd "$TARGET" && pwd -P)"
-# Refuse the main domain root, live club directories and arbitrary paths.
+# Allow only the specific, dedicated staging subdomain document root.
+# Resolving the directory with pwd -P above prevents a symlink to a live site.
 case "$TARGET" in
-  /home/*/public_html/*niwff*|/home/*/public_html/*NIWFF*) ;;
+  /home/*/public_html/stagingNIWF.hillsboroughwalkingfootball.com) ;;
   *)
-    echo "Refusing unsafe target (must be a dedicated NIWFF directory under /home/*/public_html/): $TARGET" >&2
+    echo "Refusing unsafe target. Expected a dedicated stagingNIWF.hillsboroughwalkingfootball.com directory under /home/*/public_html/: $TARGET" >&2
     exit 2 ;;
 esac
-if [[ "$TARGET" == *"/../"* || "$TARGET" == *"/hillsboroughwalkingfootball.com"* ]]; then
-  echo "Refusing unexpected staging path: $TARGET" >&2
-  exit 2
-fi
 if [[ "$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)" != "$ROOT" ]]; then
   echo "Please run this script from the NIWFF Git checkout." >&2
   exit 2
