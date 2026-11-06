@@ -44,9 +44,9 @@ The script does not overwrite existing downloaded assets, only fetches from the 
 
 A responsive static website prototype now includes Home, Find a Club, Events, International Teams (Over 60s, Over 65s, Over 70s), News, Resources, About and Contact. Club search and historic content browsing work without a backend. The prototype uses unverified historic listings only with explicit review warnings; no current player roster, event submission, direct contact form or live fixtures are implied.
 
-The agreed staging hostname is `stagingNIWF.hillsboroughwalkingfootball.com`, with a dedicated cPanel document root at `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com` (confirm the actual cPanel path). This does not depend on control of the NIWFF domain's DNS.
+The agreed staging hostname is `stagingniwf.hillsboroughwalkingfootball.com`, with a dedicated cPanel document root at `$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com` (confirm the actual cPanel path). This does not depend on control of the NIWFF domain's DNS.
 
-**Deployment is exactly like HWFC:** the Git checkout is the staging web root, and changes are deployed with `git pull --ff-only`. No `rsync` or public subfolder is required. The staging document root is the checkout at `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com`.
+**Deployment is exactly like HWFC:** the Git checkout is the staging web root, and changes are deployed with `git pull --ff-only`. No `rsync` or public subfolder is required. The staging document root is the checkout at `$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com`.
 
 A tracked root `.htaccess` prevents HTTP access to `.git`, legacy `data/` (including recovered assets), documentation, project files and scripts. Verify that Apache applies the rules before sharing the staging link. Existing cPanel `.htaccess` directives must be preserved/merged.
 
