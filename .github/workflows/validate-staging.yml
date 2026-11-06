@@ -1,0 +1,36 @@
+name: Validate NIWFF staging package
+
+on:
+  push:
+    branches: [feature/legacy-site-recovery]
+    paths:
+      - 'assets/**'
+      - '**/index.html'
+      - '404.html'
+      - 'scripts/buildStaging.py'
+      - 'tests/testStaging.py'
+      - '.github/workflows/validate-staging.yml'
+      - '.htaccess'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check assets/site.js
+      - name: Validate staging package
+        run: python3 -m unittest discover -s tests -p 'testStaging.py' -v
+      - name: Build isolated web directory
+        run: python3 scripts/buildStaging.py
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: niwff-staging-site
+          path: output/staging/
+          include-hidden-files: true
+          if-no-files-found: error

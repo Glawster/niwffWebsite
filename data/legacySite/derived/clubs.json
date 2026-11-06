@@ -1,0 +1,166 @@
+[
+  {
+    "id": "hillsborough",
+    "name": "Hillsborough Walking Football",
+    "location": "Hillsborough / Lisburn",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "HILLSBOROUGH",
+    "sessions": [
+      {
+        "day": "Tuesday",
+        "time": "10:30-11:30"
+      },
+      {
+        "day": "Thursday",
+        "time": "20:00-21:00"
+      },
+      {
+        "day": "Sunday",
+        "time": "11:30-12:30"
+      }
+    ],
+    "membershipLegacy": "£60 per year or £5 monthly, plus £2 per session; non-members £3",
+    "links": {
+      "facebook": "https://www.facebook.com/people/Hillsborough-Walking-Football-Club/100082995559544/"
+    },
+    "notes": "Some schedule and membership details may now be outdated; use current club-controlled website as confirmation source.",
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "ards-scrabo-strollers",
+    "name": "Scrabo Strollers (Ards)",
+    "location": "Newtownards",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "ARDS",
+    "sessions": [],
+    "venueLegacy": "Ards Blair Mayne Leisure Centre in winter; Londonderry Park in summer",
+    "notes": "Described as established 2016; seasonal sessions without published times.",
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "bangor",
+    "name": "Bangor Walking Football",
+    "location": "Bangor",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "BANGOR",
+    "sessions": [],
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "cala",
+    "name": "CALA Walking Football",
+    "location": "Belfast area (location unverified)",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "CALA",
+    "sessions": [],
+    "links": {
+      "website": "https://calawalkingfootballclub.wordpress.com"
+    },
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "shankill",
+    "name": "Shankill Walking Football",
+    "location": "Belfast",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "SHANKILL",
+    "sessions": [
+      {
+        "day": "Wednesday",
+        "time": "10:00-11:00",
+        "venue": "Shankill Leisure Centre"
+      }
+    ],
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "avoniel",
+    "name": "Avoniel Walking Football",
+    "location": "Belfast",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "AVONIEL",
+    "sessions": [
+      {
+        "day": "Thursday",
+        "time": "10:00-11:00",
+        "venue": "Avoniel Leisure Centre"
+      }
+    ],
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "olympia",
+    "name": "Olympia Walking Football",
+    "location": "Belfast",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "OLYMPIA",
+    "sessions": [],
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "bravehearts",
+    "name": "BraveHEARTS Walking Football",
+    "location": "West Belfast",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "BRAVEHEARTS",
+    "sessions": [
+      {
+        "day": "Friday",
+        "time": "10:00",
+        "venue": "Grosvenor Recreation and Community Centre"
+      }
+    ],
+    "feeLegacy": "£2 per activity",
+    "venueLegacy": "162 Grosvenor Road",
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  },
+  {
+    "id": "banbridge",
+    "name": "Banbridge Walking Football Club",
+    "location": "Banbridge / Gilford",
+    "source": "affiliatedClubs.md",
+    "sourceSection": "BANBRIDGE",
+    "sessions": [
+      {
+        "day": "Tuesday",
+        "time": "19:00-20:00",
+        "venue": "Gilford Leisure Centre"
+      },
+      {
+        "day": "Saturday",
+        "time": "15:00-16:00",
+        "venue": "Havelock Park, Banbridge"
+      }
+    ],
+    "eligibilityLegacy": "Men aged 50+ as described on legacy website; other groups not confirmed",
+    "notes": "Formed June 2024 according to source.",
+    "recordStatus": "historical_unverified",
+    "lastVerified": null,
+    "sourceCaptured": "2026-11-06",
+    "publishReady": false
+  }
+]
