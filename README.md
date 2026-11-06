@@ -4,6 +4,7 @@ NIWFF website redevelopment project. The existing public website remains at http
 
 ## Documentation
 
+- [Staging build and deployment instructions](documentation/stagingDeployment.md)
 - [Legacy-site content migration model](documentation/contentMigrationModel.md)
 - [Legacy-site review and outstanding decisions](project/reviews/2026-11-06-legacySiteReview.md)
 - [Legacy website archive index](data/legacySite/2026-11-06/legacySiteIndex.md)
@@ -39,6 +40,10 @@ python3 scripts/recoverLegacyAssets.py
 
 The script does not overwrite existing downloaded assets, only fetches from the original NIWFF domain, and generates a SHA-256 verification report. GitHub Actions can run the same script on the recovery branch.
 
-## Deployment
+## Staging prototype
 
-The replacement website has **not** been deployed. Do not change the existing DNS/hosting until new content, review workflow, accessibility, redirects and migration rollback are verified.
+A responsive static website prototype now includes Home, Find a Club, Events, International Teams (Over 60s, Over 65s, Over 70s), News, Resources, About and Contact. Club search and historic content browsing work without a backend. The prototype uses unverified historic listings only with explicit review warnings; no current player roster, event submission, direct contact form or live fixtures are implied.
+
+To build the isolated web-ready package, run `python3 scripts/buildStaging.py`. It writes deployable files to `output/staging/` rather than exposing this entire repository. The `validate-staging.yml` GitHub Action checks JavaScript, validates the build and uploads a staging artifact. See [staging deployment instructions](documentation/stagingDeployment.md).
+
+The replacement has **not** been deployed to a server. Do not change the existing DNS/hosting until new content, review workflow, accessibility, redirects and rollback are verified.
