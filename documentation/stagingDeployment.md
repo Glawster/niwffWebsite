@@ -1,76 +1,97 @@
-# NIWFF staging deployment guide
+# NIWFF staging deployment — repository root is website root
 
-## Status
+## Hosting model
 
-This branch contains a static, mobile-responsive staging prototype, **not an approved live replacement**. Pages are deliberately marked `noindex,nofollow`; do not publish as the production site until federation approval, current content and privacy/accessibility review.
+The NIWFF staging website uses the same arrangement as Hillsborough Walking Football: the **Git repository root itself is the Apache/cPanel document root**. There is no build, copying, rsync or separate `public/` directory in the normal deploy.
 
-## Included pages
+Website: `https://stagingNIWF.hillsboroughwalkingfootball.com/`
 
-Home; Find a Club (search and club detail); Competitions & Events (clearly separated 2025 archive); International Teams overview; separate Over-60, Over-65 and Over-70 pages; News; Resources; About; Contact. Old URLs `/player-profiles`, `/latest-news`, `/affiliated-clubs` and `/gallery` get temporary HTML redirects.
+Suggested cPanel document root: `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com` (confirm the **actual directory** in cPanel).
 
-## Prepare and verify
+The repository contains older public-site assets, archives and development files as requested. **These files are not intended to be web-accessible.** The tracked root `.htaccess` blocks requests to source control, historic data, documentation, project plans, scripts, tests, generated output and non-web source formats. Apache must honour `.htaccess` and `Require all denied` for those rules to work.
 
-Run from the checkout of `feature/legacy-site-recovery`:
+## Initial installation (new empty web directory)
 
-```sh
-node --check assets/site.js
-python3 -m unittest discover -s tests -p 'testStaging.py' -v
-python3 scripts/buildStaging.py
-```
+First create the `stagingNIWF.hillsboroughwalkingfootball.com` subdomain and its dedicated document root in cPanel, using Hillsborough's DNS zone (no NIWFF DNS access needed).
 
-The output is in `output/staging/`. The same build is run by GitHub Actions, where the `niwff-staging-site` artifact can be downloaded once CI succeeds. Only allow-listed public website files are copied; the original recovery archive, personal contacts, surveys and project documents are **not** exposed.
-
-## Deployment to clannEolas (same Git → cPanel approach as HWFC)
-
-Create a *dedicated* NIWFF staging subdomain in clannEolas cPanel: `stagingNIWF.hillsboroughwalkingfootball.com`. This uses the Hillsborough domain's DNS, which you control, without requiring access to NIWFF DNS. Its document root should be separate, e.g. `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com`. Confirm the actual path in cPanel before proceeding, and provision HTTPS as for HWFC (AutoSSL if available, otherwise the previously used Let's Encrypt/acme.sh method).
-
-Clone the public NIWFF repository into the server's `~/repos/` folder. Do not place the Git checkout in `public_html`:
+SSH into the cPanel account and enter the exact document root created by cPanel:
 
 ```bash
-mkdir -p ~/repos
-cd ~/repos
-git clone --branch feature/legacy-site-recovery https://github.com/Glawster/niwffWebsite.git
-cd niwffWebsite
-export NIWFF_STAGING_ROOT="$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
-bash scripts/deployStaging.sh --init
-bash scripts/deployStaging.sh
+cd "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+pwd -P
+ls -la
 ```
 
-`--init` creates a destination ownership marker and refuses a directory already containing another site's index page. The second command runs tests, builds the static package, and shows an rsync **dry run**. Review the destination and changes. When satisfied, deploy:
+If that folder is empty, clone directly into it:
 
 ```bash
-bash scripts/deployStaging.sh --confirm
+git clone --branch feature/legacy-site-recovery \
+  https://github.com/Glawster/niwffWebsite.git .
 ```
 
-For future updates, run the same `--confirm` command from `~/repos/niwffWebsite`. It checks the origin and branch, refuses a dirty working tree, pulls with `git pull --ff-only`, runs Python smoke tests, builds into `output/staging/`, and synchronises only public files to the separately marked document root. The generated `output/` directory is Git-ignored.
+**If it already contains files**, don't overwrite anything or delete cPanel configuration. Review them first. If it contains a cPanel-managed `.htaccess` (for Directory Privacy, PHP handling or redirects), back it up elsewhere and merge its directives with the repository `.htaccess`. Do not remove cPanel-managed access controls to force Git cloning.
 
-**Important:** Confirm the target is dedicated to NIWFF; deployment uses `rsync --delete` within that directory, protecting the ownership marker, cPanel `.htaccess`/`.htpasswd`, `.well-known`, `cgi-bin` and `error_log`. Because cPanel may manage HTTP authentication in `.htaccess`, the deployment deliberately **does not overwrite or delete the server's `.htaccess`**. If you need the repository's suggested 404/error-header directives, merge them into that file separately without removing any cPanel-managed authentication rules. Never point it at `public_html` itself or HWFC's live/staging root. The script requires the exact cPanel directory name `stagingNIWF.hillsboroughwalkingfootball.com` under `/home/ACCOUNT/public_html/`, not the live Hillsborough directory. No SSH credentials or GitHub secrets are needed because deployment runs on the host.
+## If the repository was already cloned to ~/repos
 
-Verify the chosen staging hostname (including `/international-teams/` and `/international-teams/over-60s/`) using a browser and `curl -I`. Set up cPanel Directory Privacy/Basic Auth if committee-only; `noindex` is not access control. No production NIWFF DNS changes are involved. Add only the staging subdomain's DNS record within the Hillsborough DNS zone, pointing to the clannEolas host, and leave existing Hillsborough DNS records unchanged.
+Check the intended document root is an empty and separate directory, then move the existing checkout rather than cloning twice:
 
-## Hosting
-
-For an Apache server, set the staging virtual host's document root to the contents of `output/staging/` (not to the Git repository itself). Example:
-
-```sh
-rsync -av --delete output/staging/ user@host:/path/to/niwff-staging-document-root/
+```bash
+# First inspect both locations; do not run mv onto a populated site directory.
+ls -la "$HOME/repos/niwffWebsite"
+ls -la "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
 ```
 
-Substitute your actual account and hosting path. The build produces a suggested `.htaccess`, but the server-side staging deploy deliberately excludes it to preserve cPanel-managed authentication. Inspect and merge any desired 404/error-header directives manually. The site assumes it is hosted at the root of a staging subdomain, e.g. `stagingNIWF.hillsboroughwalkingfootball.com`, **not** a subdirectory. HTTPS must be configured at the host.
+If the destination is empty and you are certain it is the NIWFF staging document root, use:
 
-Do not change the live `niwalkingfootball.com` DNS or hosting before acceptance testing. Protect staging with HTTP authentication or other access controls if sharing only with the committee; robots noindex is not access control.
+```bash
+rmdir "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+mv "$HOME/repos/niwffWebsite" \
+   "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+```
 
-## Staging acceptance checklist
+If the directory contains existing server-managed files, resolve their configuration before attempting this move. **Never run these commands against the HWFC site root.**
 
-- Confirm every route loads directly (including refreshing a squad detail page).
-- Confirm club search and regional filter, keyboard navigation and mobile menu.
-- Check the layout on mobile and desktop and run WCAG accessibility testing.
-- Validate source attribution and usage permissions for images before including recovered photos.
-- Confirm contact, official rules, current club schedules, eligibility, squad rosters, fixtures, results, policies and survey priorities.
-- Implement a real, approved contact/event-submission workflow before public launch. The current preview does **not** claim that forms send or publish data.
-- Replace the noindex policy and staging banners **only at approved production release**.
-- Create final canonical URLs, a sitemap, official redirects, privacy notice and rollback procedure before production cutover.
+## Regular deployment
 
-## Scope limitations
+From the cPanel staging document root:
 
-The present prototype is dependency-free JavaScript rendering in static HTML shells. It is staging-review ready, but a production release should pre-render meaningful page content for search engines and visitors who disable JavaScript. Authentication, a content editor, event-submission approval and automatic Facebook publishing are **not implemented**. Current team/player data is intentionally withheld until verified.
+```bash
+cd "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+git status --short
+git branch --show-current
+git pull --ff-only
+```
+
+The tracked branch is currently `feature/legacy-site-recovery`; when merging to `main` in future, switch the deployed checkout deliberately and ensure that the right branch is used.
+
+The website is plain HTML, CSS and JavaScript. No npm build step, rsync or deployment automation is needed for normal updates.
+
+## Server checks — important
+
+1. Set up an SSL certificate for `stagingNIWF.hillsboroughwalkingfootball.com`, using cPanel AutoSSL or the previously proven Let's Encrypt/acme.sh process.
+2. Test homepage and nested team URL, including a reload:
+   ```bash
+   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/
+   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/international-teams/over-60s/
+   ```
+3. Verify that the Apache access rules actually protect private paths (these should return **403** or **404**, never **200**):
+   ```bash
+   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/.git/config
+   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/data/legacySite/2026-11-06/affiliatedClubs.md
+   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/REQUIREMENTS.md
+   ```
+4. Confirm that `/assets/site.js` and `/assets/site.css` are accessible, and that the club search and mobile navigation work.
+5. Ensure Apache honours `AllowOverride` and the appropriate modules. If the protection checks fail, **remove public access to staging** until server configuration is corrected; `noindex` alone does not provide privacy.
+6. Configure cPanel Directory Privacy or HTTP authentication for committee-only review. Carefully merge any cPanel-added `.htaccess` rules with the tracked repository file; a `git pull` may otherwise conflict with uncommitted edits.
+
+## Legacy archives and images
+
+The recovered old-site images and assets remain in `data/legacySite/` as requested. They do not need to be moved. The `data/` path is blocked from web requests, but is readable through the server filesystem for future content migration.
+
+This deployment model differs from the optional `scripts/buildStaging.py` package/CI workflow, which is still available for an isolated static artifact if needed. **It is not part of the normal staging deployment.**
+
+## Release limitations
+
+This is a review site, not the public production replacement: historic clubs/squads/events remain unverified; there is not yet a working contact form, club event submission/approval service or approved privacy/governance content. Leave the `noindex` policy in place until production release.
+
+The existing `niwalkingfootball.com` DNS and both live HWFC sites remain unchanged.
