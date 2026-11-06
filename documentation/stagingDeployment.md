@@ -44,7 +44,7 @@ bash scripts/deployStaging.sh --confirm
 
 For future updates, run the same `--confirm` command from `~/repos/niwffWebsite`. It checks the origin and branch, refuses a dirty working tree, pulls with `git pull --ff-only`, runs Python smoke tests, builds into `output/staging/`, and synchronises only public files to the separately marked document root. The generated `output/` directory is Git-ignored.
 
-**Important:** Confirm the target is dedicated to NIWFF; deployment uses `rsync --delete` within that directory, protecting the ownership marker, `.well-known`, `cgi-bin` and `error_log`. Never point it at `public_html` itself or HWFC's live/staging root. The script requires a path under a cPanel `public_html` folder containing `niwff` in its name. No SSH credentials or GitHub secrets are needed because deployment runs on the host.
+**Important:** Confirm the target is dedicated to NIWFF; deployment uses `rsync --delete` within that directory, protecting the ownership marker, cPanel `.htaccess`/`.htpasswd`, `.well-known`, `cgi-bin` and `error_log`. Because cPanel may manage HTTP authentication in `.htaccess`, the deployment deliberately **does not overwrite or delete the server's `.htaccess`**. If you need the repository's suggested 404/error-header directives, merge them into that file separately without removing any cPanel-managed authentication rules. Never point it at `public_html` itself or HWFC's live/staging root. The script requires a path under a cPanel `public_html` folder containing `niwff` in its name. No SSH credentials or GitHub secrets are needed because deployment runs on the host.
 
 Verify the chosen staging hostname (including `/international-teams/` and `/international-teams/over-60s/`) using a browser and `curl -I`. Set up cPanel Directory Privacy/Basic Auth if committee-only; `noindex` is not access control. No production NIWFF DNS changes are involved.
 
@@ -56,7 +56,7 @@ For an Apache server, set the staging virtual host's document root to the conten
 rsync -av --delete output/staging/ user@host:/path/to/niwff-staging-document-root/
 ```
 
-Substitute your actual account and hosting path. The build includes `.htaccess` for index routing, directory listing protection and the 404 page. The site assumes it is hosted at the root of a staging subdomain, e.g. `staging.niwalkingfootball.com`, **not** a subdirectory. HTTPS must be configured at the host.
+Substitute your actual account and hosting path. The build produces a suggested `.htaccess`, but the server-side staging deploy deliberately excludes it to preserve cPanel-managed authentication. Inspect and merge any desired 404/error-header directives manually. The site assumes it is hosted at the root of a staging subdomain, e.g. `staging.niwalkingfootball.com`, **not** a subdirectory. HTTPS must be configured at the host.
 
 Do not change the live `niwalkingfootball.com` DNS or hosting before acceptance testing. Protect staging with HTTP authentication or other access controls if sharing only with the committee; robots noindex is not access control.
 
