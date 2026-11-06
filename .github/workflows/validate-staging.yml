@@ -8,6 +8,7 @@ on:
       - '**/index.html'
       - '404.html'
       - 'scripts/buildStaging.py'
+      - 'scripts/deployStaging.sh'
       - 'tests/testStaging.py'
       - '.github/workflows/validate-staging.yml'
   workflow_dispatch:
@@ -20,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate server deployment script syntax
+        run: bash -n scripts/deployStaging.sh
       - name: Check JavaScript syntax
         run: node --check assets/site.js
       - name: Validate staging package
