@@ -110,6 +110,8 @@ SOURCE="$ROOT/output/staging/"
 RSYNC_OPTS=(
   --archive --verbose --itemize-changes --delete
   --filter="P /$MARKER"
+  --filter='- /.htaccess'
+  --filter='P /.htpasswd'
   --filter='P /.well-known/***'
   --filter='P /cgi-bin/***'
   --filter='P /error_log'
