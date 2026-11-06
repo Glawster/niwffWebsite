@@ -1,0 +1,234 @@
+{
+  "capturedAt": "2026-11-06",
+  "source": "https://niwalkingfootball.com",
+  "method": "public browser DOM and CSS inspection",
+  "notes": [
+    "Asset URLs discovered, not yet confirmed downloaded",
+    "SVG and image copyrights/permissions must be reviewed before republishing",
+    "No CSS or font URLs surfaced from rendered-page inspection"
+  ],
+  "assets": [
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/a58c05c47a7bdb1edb5652112ab01c64.png",
+      "archivePath": "assets/home/a58c05c47a7bdb1edb5652112ab01c64.png",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/e409595577fb21485be3cd9344274647.jpg",
+      "archivePath": "assets/home/e409595577fb21485be3cd9344274647.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/984c1c5dc6edc8ae03443b8c6249dfc5.jpg",
+      "archivePath": "assets/home/984c1c5dc6edc8ae03443b8c6249dfc5.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/369c1e731f9de345af6c41507be0e770.jpg",
+      "archivePath": "assets/home/369c1e731f9de345af6c41507be0e770.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/6d5d51b58737e7ad6c8c25552c183a19.jpg",
+      "archivePath": "assets/home/6d5d51b58737e7ad6c8c25552c183a19.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/9a7282240a906a639777e08313fceb9e.jpg",
+      "archivePath": "assets/home/9a7282240a906a639777e08313fceb9e.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/media/729e71b41ba79c6bfaa393cef0b66e43.jpg",
+      "archivePath": "assets/home/729e71b41ba79c6bfaa393cef0b66e43.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "home",
+      "url": "https://niwalkingfootball.com/_assets/scenes/b40d6a380e344704e200b0228da03006.png",
+      "archivePath": "assets/home/b40d6a380e344704e200b0228da03006.png",
+      "status": "discovered"
+    },
+    {
+      "page": "latestNews",
+      "url": "https://niwalkingfootball.com/latest-news/_assets/media/fa6d5ac6ea801280d58bf2aeaaa41063.jpg",
+      "archivePath": "assets/latestNews/fa6d5ac6ea801280d58bf2aeaaa41063.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "latestNews",
+      "url": "https://niwalkingfootball.com/latest-news/_assets/media/2faa7b03233c08ac4518aff5ad6ec68d.jpg",
+      "archivePath": "assets/latestNews/2faa7b03233c08ac4518aff5ad6ec68d.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "affiliatedClubs",
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/0f320308921797a7a784db255c81381e.jpg",
+      "archivePath": "assets/affiliatedClubs/0f320308921797a7a784db255c81381e.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "affiliatedClubs",
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/f47c3482e4b391f0e372364d59ecc8d8.png",
+      "archivePath": "assets/affiliatedClubs/f47c3482e4b391f0e372364d59ecc8d8.png",
+      "status": "discovered"
+    },
+    {
+      "page": "affiliatedClubs",
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/f0aebda00069fba0967c217533865651.png",
+      "archivePath": "assets/affiliatedClubs/f0aebda00069fba0967c217533865651.png",
+      "status": "discovered"
+    },
+    {
+      "page": "affiliatedClubs",
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/3244f46b4e7b3a34dedabc47f3e60c42.svg",
+      "archivePath": "assets/affiliatedClubs/3244f46b4e7b3a34dedabc47f3e60c42.svg",
+      "status": "discovered"
+    },
+    {
+      "page": "affiliatedClubs",
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/bb2d33a52ebf7af33b05f2f73b03170a.svg",
+      "archivePath": "assets/affiliatedClubs/bb2d33a52ebf7af33b05f2f73b03170a.svg",
+      "status": "discovered"
+    },
+    {
+      "page": "gallery",
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/a843c4e76a3bdb203dde0e41eb99844d.jpg",
+      "archivePath": "assets/gallery/a843c4e76a3bdb203dde0e41eb99844d.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "gallery",
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/478e301383bd874914763fdc518e40ae.jpg",
+      "archivePath": "assets/gallery/478e301383bd874914763fdc518e40ae.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "gallery",
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/a484c13f32edd1719e7e2e833f8dfd78.jpg",
+      "archivePath": "assets/gallery/a484c13f32edd1719e7e2e833f8dfd78.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "gallery",
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/8cdb8c88b18fd0784708bf3b29f74dc7.jpg",
+      "archivePath": "assets/gallery/8cdb8c88b18fd0784708bf3b29f74dc7.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "gallery",
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/cafb948acdbadfb9e814423478d55c75.png",
+      "archivePath": "assets/gallery/cafb948acdbadfb9e814423478d55c75.png",
+      "status": "discovered"
+    },
+    {
+      "page": "gallery",
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/c577360eada739fed99f893cd7aeb351.png",
+      "archivePath": "assets/gallery/c577360eada739fed99f893cd7aeb351.png",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/440e9f0b0683c1f463a523d04f17829e.jpg",
+      "archivePath": "assets/playerProfiles/440e9f0b0683c1f463a523d04f17829e.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/31219de0b45dbd0d313741b0e03db795.jpg",
+      "archivePath": "assets/playerProfiles/31219de0b45dbd0d313741b0e03db795.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/f8605baf377c423d93ff5d8b472901eb.jpg",
+      "archivePath": "assets/playerProfiles/f8605baf377c423d93ff5d8b472901eb.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/d8ddb2bb279f4ddc8b4f62ed395bbc67.jpg",
+      "archivePath": "assets/playerProfiles/d8ddb2bb279f4ddc8b4f62ed395bbc67.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/11b8a10598eada6ae0bb089c7c94fd2d.jpg",
+      "archivePath": "assets/playerProfiles/11b8a10598eada6ae0bb089c7c94fd2d.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/440cde8cc1237c6d2e51ec4d743c1dd3.jpg",
+      "archivePath": "assets/playerProfiles/440cde8cc1237c6d2e51ec4d743c1dd3.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/85f6a14ff7e78901ae42f505e8e7d6b8.jpg",
+      "archivePath": "assets/playerProfiles/85f6a14ff7e78901ae42f505e8e7d6b8.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/a7e54f522b76bcf5696743c0361c99f0.jpg",
+      "archivePath": "assets/playerProfiles/a7e54f522b76bcf5696743c0361c99f0.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/1e285a59d18e791240a5ad029eefec03.jpg",
+      "archivePath": "assets/playerProfiles/1e285a59d18e791240a5ad029eefec03.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/ef2d80f87691e37933286a389254d008.jpg",
+      "archivePath": "assets/playerProfiles/ef2d80f87691e37933286a389254d008.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/eb826f8d578f1dac38d7a46c11e23467.jpg",
+      "archivePath": "assets/playerProfiles/eb826f8d578f1dac38d7a46c11e23467.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/3916913cd2def7be0c7a44db3dc67f71.jpg",
+      "archivePath": "assets/playerProfiles/3916913cd2def7be0c7a44db3dc67f71.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/ad15bdbf0077d2e7a5703a8fc3c012d0.jpg",
+      "archivePath": "assets/playerProfiles/ad15bdbf0077d2e7a5703a8fc3c012d0.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/8b4efbc52160257be081ac954264c97f.jpg",
+      "archivePath": "assets/playerProfiles/8b4efbc52160257be081ac954264c97f.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/ad3182a1657c16ce505c2b9bd660a711.jpg",
+      "archivePath": "assets/playerProfiles/ad3182a1657c16ce505c2b9bd660a711.jpg",
+      "status": "discovered"
+    },
+    {
+      "page": "playerProfiles",
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/c785ff89f6fd3ce15bb03e0044533609.jpg",
+      "archivePath": "assets/playerProfiles/c785ff89f6fd3ce15bb03e0044533609.jpg",
+      "status": "discovered"
+    }
+  ]
+}
