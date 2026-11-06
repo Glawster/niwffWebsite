@@ -44,6 +44,8 @@ The script does not overwrite existing downloaded assets, only fetches from the 
 
 A responsive static website prototype now includes Home, Find a Club, Events, International Teams (Over 60s, Over 65s, Over 70s), News, Resources, About and Contact. Club search and historic content browsing work without a backend. The prototype uses unverified historic listings only with explicit review warnings; no current player roster, event submission, direct contact form or live fixtures are implied.
 
-To build the isolated web-ready package, run `python3 scripts/buildStaging.py`. It writes deployable files to `output/staging/` rather than exposing this entire repository. The `validate-staging.yml` GitHub Action checks JavaScript, validates the build and uploads a staging artifact. See [staging deployment instructions](documentation/stagingDeployment.md).
+For clannEolas staging, use `bash scripts/deployStaging.sh --init` once, then preview with `bash scripts/deployStaging.sh` and deploy with `bash scripts/deployStaging.sh --confirm` after setting `NIWFF_STAGING_ROOT` to the dedicated cPanel document root. This follows the HWFC server Git-pull approach while protecting cPanel authentication files. Do not set the Git repo as DocumentRoot.
+
+To build the isolated web-ready package separately, run `python3 scripts/buildStaging.py`. It writes deployable files to `output/staging/` rather than exposing this entire repository. The `validate-staging.yml` GitHub Action checks JavaScript, validates the build and uploads a staging artifact. See [staging deployment instructions](documentation/stagingDeployment.md).
 
 The replacement has **not** been deployed to a server. Do not change the existing DNS/hosting until new content, review workflow, accessibility, redirects and rollback are verified.
