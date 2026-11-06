@@ -9,7 +9,7 @@ NIWFF website redevelopment project. The existing public website remains at http
 - [Legacy website archive index](data/legacySite/2026-11-06/legacySiteIndex.md)
 - [Legacy image inventory](data/legacySite/2026-11-06/assetManifest.json)
 - [Asset download verification report](data/legacySite/2026-11-06/assetRecoveryReport.json)
-- [Original requirements backlog](REQUIREMENTS.md)
+- [Website requirements, including International Teams](REQUIREMENTS.md)
 - [Shared requirements-management guidance](documentation/requirementsManagement.md)
 - [Shared repository-layout guidance](documentation/repositoryLayout.md)
 - [Shared testing process](documentation/testingProcess.md)
@@ -17,14 +17,14 @@ NIWFF website redevelopment project. The existing public website remains at http
 
 ## Content migration status
 
-The first archive preserves five publicly accessible pages. The image archive attempted 37 references, successfully recovered 36 and recorded one missing scene/background URL. Derived content records contain nine club profiles, eight historical competition listings and seven news topics.
+The first archive preserves five publicly accessible pages. The image archive attempted 37 references, successfully recovered 36 and recorded one missing scene/background URL. Derived content records contain nine club profiles, eight historical competition listings, seven news topics and three historic international-team category records.
 
 **None of the derived records is approved for immediate publication.** Every record must be reviewed against current NIWFF information and the original survey findings. The dated competitions belong in a historical archive, not the upcoming-events feed.
 
 ## Directory overview
 
 - `data/legacySite/2026-11-06/`: the original public-site recovery, asset inventory, recovered images, and verification report.
-- `data/legacySite/derived/`: structured migration candidates extracted from the legacy capture.
+- `data/legacySite/derived/`: structured migration candidates extracted from the legacy capture, including `internationalTeams.json`.
 - `scripts/recoverLegacyAssets.py`: repeatable restricted public-asset recovery routine.
 - `project/reviews/`: dated assessments and rebuilding decisions.
 - `documentation/`: living project guidance.
