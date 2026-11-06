@@ -4,20 +4,20 @@
 
 The NIWFF staging website uses the same arrangement as Hillsborough Walking Football: the **Git repository root itself is the Apache/cPanel document root**. There is no build, copying, rsync or separate `public/` directory in the normal deploy.
 
-Website: `https://stagingNIWF.hillsboroughwalkingfootball.com/`
+Website: `https://stagingniwf.hillsboroughwalkingfootball.com/`
 
-Suggested cPanel document root: `$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com` (confirm the **actual directory** in cPanel).
+Suggested cPanel document root: `$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com` (confirm the **actual directory** in cPanel).
 
 The repository contains older public-site assets, archives and development files as requested. **These files are not intended to be web-accessible.** The tracked root `.htaccess` blocks requests to source control, historic data, documentation, project plans, scripts, tests, generated output and non-web source formats. Apache must honour `.htaccess` and `Require all denied` for those rules to work.
 
 ## Initial installation (new empty web directory)
 
-First create the `stagingNIWF.hillsboroughwalkingfootball.com` subdomain and its dedicated document root in cPanel, using Hillsborough's DNS zone (no NIWFF DNS access needed).
+First create the `stagingniwf.hillsboroughwalkingfootball.com` subdomain and its dedicated document root in cPanel, using Hillsborough's DNS zone (no NIWFF DNS access needed).
 
 SSH into the cPanel account and enter the exact document root created by cPanel:
 
 ```bash
-cd "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+cd "$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com"
 pwd -P
 ls -la
 ```
@@ -38,15 +38,15 @@ Check the intended document root is an empty and separate directory, then move t
 ```bash
 # First inspect both locations; do not run mv onto a populated site directory.
 ls -la "$HOME/repos/niwffWebsite"
-ls -la "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+ls -la "$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com"
 ```
 
 If the destination is empty and you are certain it is the NIWFF staging document root, use:
 
 ```bash
-rmdir "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+rmdir "$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com"
 mv "$HOME/repos/niwffWebsite" \
-   "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+   "$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com"
 ```
 
 If the directory contains existing server-managed files, resolve their configuration before attempting this move. **Never run these commands against the HWFC site root.**
@@ -56,7 +56,7 @@ If the directory contains existing server-managed files, resolve their configura
 From the cPanel staging document root:
 
 ```bash
-cd "$HOME/public_html/stagingNIWF.hillsboroughwalkingfootball.com"
+cd "$HOME/public_html/stagingniwf.hillsboroughwalkingfootball.com"
 git status --short
 git branch --show-current
 git pull --ff-only
@@ -68,17 +68,17 @@ The website is plain HTML, CSS and JavaScript. No npm build step, rsync or deplo
 
 ## Server checks — important
 
-1. Set up an SSL certificate for `stagingNIWF.hillsboroughwalkingfootball.com`, using cPanel AutoSSL or the previously proven Let's Encrypt/acme.sh process.
+1. Set up an SSL certificate for `stagingniwf.hillsboroughwalkingfootball.com`, using cPanel AutoSSL or the previously proven Let's Encrypt/acme.sh process.
 2. Test homepage and nested team URL, including a reload:
    ```bash
-   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/
-   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/international-teams/over-60s/
+   curl -I https://stagingniwf.hillsboroughwalkingfootball.com/
+   curl -I https://stagingniwf.hillsboroughwalkingfootball.com/international-teams/over-60s/
    ```
 3. Verify that the Apache access rules actually protect private paths (these should return **403** or **404**, never **200**):
    ```bash
-   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/.git/config
-   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/data/legacySite/2026-11-06/affiliatedClubs.md
-   curl -I https://stagingNIWF.hillsboroughwalkingfootball.com/REQUIREMENTS.md
+   curl -I https://stagingniwf.hillsboroughwalkingfootball.com/.git/config
+   curl -I https://stagingniwf.hillsboroughwalkingfootball.com/data/legacySite/2026-11-06/affiliatedClubs.md
+   curl -I https://stagingniwf.hillsboroughwalkingfootball.com/REQUIREMENTS.md
    ```
 4. Confirm that `/assets/site.js` and `/assets/site.css` are accessible, and that the club search and mobile navigation work.
 5. Ensure Apache honours `AllowOverride` and the appropriate modules. If the protection checks fail, **remove public access to staging** until server configuration is corrected; `noindex` alone does not provide privacy.
