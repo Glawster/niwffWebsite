@@ -18,7 +18,7 @@ PAGES = [
     "international-teams/over-60s/index.html",
     "international-teams/over-65s/index.html",
     "international-teams/over-70s/index.html",
-    "news/index.html", "resources/index.html",
+    "news/index.html", "gallery/index.html", "resources/index.html",
     "about/index.html", "contact/index.html",
 ]
 FILES = PAGES + ["assets/site.css", "assets/site.js"]
@@ -27,7 +27,6 @@ REDIRECTS = {
     "player-profiles": "/international-teams/",
     "latest-news": "/news/",
     "affiliated-clubs": "/find-a-club/",
-    "gallery": "/news/",
 }
 
 
