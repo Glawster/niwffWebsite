@@ -59,3 +59,7 @@ The replacement has **not** been deployed to a server. Do not change the existin
 ## Database-backed submissions (staging)
 
 The initial PHP/MySQL workflow adds Create an Event, Register My Club and an authenticated administration review queue. The existing website remains the Git checkout document root. See [database setup and acceptance tests](documentation/databaseWorkflows.md) before enabling the forms. No database credentials or user accounts are shipped in Git.
+
+## Website version
+
+The current website version is defined in [version.css](version.css) and displayed in the shared footer, following HWFC. Update this single source for each shared development build or release; see [site design](documentation/siteDesign.md).
