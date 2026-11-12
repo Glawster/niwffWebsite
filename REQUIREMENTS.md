@@ -121,3 +121,14 @@ Backlog item — content model and historical source data prepared; page impleme
 - Tabs shall support keyboard navigation, selected state, mobile layout and clear empty-year messages.
 
 Status: initial staging UI implemented; approved upcoming events, full historical content, photographs and mailbox provisioning outstanding.
+
+### Database-backed club registration and publication administration
+
+- Public Create an Event and Register My Club forms persist submissions in a MySQL/MariaDB database with pending status. No submission is published automatically.
+- Individually authenticated website administrators can review, edit, approve, reject, request changes or withdraw each submission. Decisions are recorded with administrator, time, status transition and internal note.
+- Only approved records are exposed through the publication feed; public contact fields are explicitly distinguished from private representative details. Withdrawing approval removes the record from the public feed.
+- Approved club registrations populate Find a Club; approved events populate the forthcoming calendar, then move to the correct year of Past Events when completed. Registration does not constitute formal affiliation.
+- Database credentials and configuration must remain outside the website root; admin accounts use hashed passwords. Public and administrator forms use CSRF tokens and server validation.
+- Future increments: stronger shared rate limiting, duplicate/revision management and club self-service, automated amendment/resubmission correspondence, uploaded logo/poster storage, Facebook event preparation, retention policy and administration backup/restore tests.
+
+Status: initial staging implementation committed; database provisioning, end-to-end tests and approval before public submissions are outstanding.
