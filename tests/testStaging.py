@@ -36,6 +36,7 @@ class StagingTests(unittest.TestCase):
                 self.assertIn("noindex,nofollow", html, route)
             self.assertTrue((out / "assets/site.js").is_file())
             self.assertTrue((out / "assets/site.css").is_file())
+            self.assertTrue((out / "version.css").is_file())
             self.assertTrue((out / "player-profiles/index.html").is_file())
             self.assertFalse((out / "data").exists(), "Never deploy raw data archive")
             self.assertFalse((out / "REQUIREMENTS.md").exists())
@@ -50,6 +51,17 @@ class StagingTests(unittest.TestCase):
         self.assertIn("Options -Indexes", rules)
         self.assertIn('X-Robots-Tag', rules)
         self.assertIn('FilesMatch', rules)
+
+    def test_website_version(self):
+        import re
+        version = (ROOT / "version.css").read_text(encoding="utf-8")
+        self.assertRegex(version, r'--siteVersion:\s*"\d+\.\d+(?:\.\d+)?(?:a\d+)?";')
+        css = (ROOT / "assets/site.css").read_text(encoding="utf-8")
+        self.assertIn('@import url("/version.css");', css)
+        self.assertIn('content:"Website version " var(--siteVersion)', css)
+        self.assertIn(".footer-bottom::after", css)
+        self.assertIn(".portal-version::after", css)
+        self.assertIn('class="portal-version"', (ROOT / "scripts/portal.php").read_text(encoding="utf-8"))
 
     def test_archive_and_links(self):
         js = (ROOT / "assets/site.js").read_text(encoding="utf-8")
