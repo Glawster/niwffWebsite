@@ -9,13 +9,13 @@ const LINKS={ifa:"https://www.irishfa.com/",walking:"https://www.irishfa.com/iri
 const EMAIL_ACTIVE=false;
 const YEAR=Number(new Intl.DateTimeFormat("en-GB",{year:"numeric",timeZone:"Europe/London"}).format(new Date()));
 const YEARS=Array.from({length:5},(_,i)=>String(YEAR-i)).concat("older");
-const UPCOMING=[];
+let UPCOMING=[];
 const TEAM=[
   {slug:"over-60s",name:"Over 60s",evidence:"The legacy website contains a named Over-60 squad and references to several international tournaments."},
   {slug:"over-65s",name:"Over 65s",evidence:"The legacy 2025 international competition calendar includes Northern Ireland Over-65s."},
   {slug:"over-70s",name:"Over 70s",evidence:"The legacy calendar and a report of friendly games at Seaview refer to Northern Ireland Over-70s."}
 ];
-const CLUBS=[
+let CLUBS=[
   {name:"Hillsborough Walking Football",area:"Lisburn & Castlereagh",town:"Hillsborough / Lisburn",slug:"hillsborough",description:"A community walking football programme associated with Hillsborough Boys FC. Previous times and membership arrangements require confirmation.",link:"https://hillsboroughwalkingfootball.com/"},
   {name:"Scrabo Strollers (Ards)",area:"Ards & North Down",town:"Newtownards",slug:"ards",description:"An established Newtownards walking football club, with historical sessions at Ards Blair Mayne Leisure Centre and Londonderry Park."},
   {name:"Bangor Walking Football",area:"Ards & North Down",town:"Bangor",slug:"bangor",description:"An affiliated club listed on the original NIWFF website."},
@@ -54,7 +54,7 @@ const intro=(label,heading,description)=>'<section class="page-hero"><div class=
 const section=(html,extra="")=>'<section class="section '+extra+'"><div class="shell">'+html+'</div></section>';
 const card=(icon,heading,body,href,text="Explore")=>'<a class="tile-link" href="'+href+'"><article class="card"><span class="card-icon" aria-hidden="true">'+icon+'</span><h3>'+heading+'</h3><p>'+body+'</p><div class="card-footer">'+text+' <span aria-hidden="true">→</span></div></article></a>';
 const teamCard=(t)=>card("⚽","Northern Ireland "+t.name,"International walking football squad, fixtures and historical tournament information.","/international-teams/"+t.slug+"/","View team");
-const clubCard=(c)=>'<article class="card club-card" data-area="'+esc(c.area.toLowerCase())+'" data-search="'+esc((c.name+" "+c.town+" "+c.area).toLowerCase())+'"><div class="kicker">'+esc(c.area)+'</div><h3>'+esc(c.name)+'</h3><div class="meta">📍 '+esc(c.town)+'</div><p>'+esc(c.description)+'</p><span class="tag tag-archive">Details under review</span><div class="card-footer"><a href="/find-a-club/?club='+encodeURIComponent(c.slug)+'">View club record →</a></div></article>';
+const clubCard=(c)=>'<article class="card club-card" data-area="'+esc(c.area.toLowerCase())+'" data-search="'+esc((c.name+" "+c.town+" "+c.area).toLowerCase())+'"><div class="kicker">'+esc(c.area)+'</div><h3>'+esc(c.name)+'</h3><div class="meta">📍 '+esc(c.town)+'</div><p>'+esc(c.description)+'</p>'+(c.approved?'<span class="tag">Approved club</span>':'<span class="tag tag-archive">Details under review</span>')+'<div class="card-footer"><a href="/find-a-club/?club='+encodeURIComponent(c.slug)+'">View club record →</a></div></article>';
 function home(){
  title("Home");
  return '<section class="hero"><div class="shell hero-inner"><div><p class="eyebrow">Northern Ireland Walking Football Federation</p><h1>Football for life.<br>Football for everyone.</h1><p class="lead">Find your local walking football community, discover the international teams and stay connected to the game across Northern Ireland.</p><div class="hero-actions"><a class="btn btn-primary" href="/find-a-club/">Find a club <span aria-hidden="true">→</span></a><a class="btn btn-light" href="/about/">Discover walking football</a></div></div><div class="pitch" aria-hidden="true"><div class="pitch-line"></div><div class="pitch-box"></div><div class="pitch-box right"></div><div class="pitch-ball">⚽</div><div class="pitch-caption">Move • Play • Belong</div></div></div></section>'+
@@ -73,11 +73,16 @@ function clubs(){
   const c=CLUBS.find(x=>x.slug===selected);
   if(!c) return notFound();
   title(c.name);
+  if(c.approved){
+   const details=[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility]].filter(x=>x[1]).map(([label,value])=>'<p><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join("");
+   const external=[["Club website",c.website],["Social media",c.social]].filter(x=>x[1]&&/^https?:\/\//i.test(x[1])).map(([label,url])=>'<a class="btn btn-outline" href="'+esc(url)+'" rel="noopener noreferrer">'+label+' ↗</a>').join("");
+   return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to directory</a></div><div class="panel"><span class="tag">Approved club</span><h2>About this club</h2><p>'+esc(c.description)+'</p>'+details+(c.public_email?'<p><strong>Public contact:</strong> <a href="mailto:'+esc(c.public_email)+'">'+esc(c.public_email)+'</a></p>':'')+'<div class="button-row">'+external+'</div></div>');
+  }
   return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to club directory</a></div><div class="content-grid"><article class="panel"><h2>About this club</h2><p>'+esc(c.description)+'</p>'+notice("This profile is based on an archived website listing. Session times, eligibility, costs and contact details are not confirmed as current.")+(c.link?'<a class="btn btn-dark" target="_blank" rel="noopener noreferrer" href="'+c.link+'">Visit club website ↗</a>':'<a class="btn btn-dark" href="/contact/">Enquire through NIWFF</a>')+'</article><aside class="panel"><h3>Club record</h3><p><strong>Area:</strong> '+esc(c.area)+'</p><p><strong>Location:</strong> '+esc(c.town)+'</p><p><strong>Verification:</strong> Pending</p></aside></div>');
  }
  title("Find a Club");
  return intro("Get playing","Find a club","Explore walking football clubs in Northern Ireland. These listings are being updated and verified for the new NIWFF website.")+
- section(notice("This is a preview of the directory; club details and active status have not yet been confirmed.")+
+ section('<div class="button-row"><a class="btn btn-dark" href="/submit.php?kind=club">Register My Club</a></div>'+notice("Approved clubs are identified in the directory. Historical listings remain labelled for review.")+
  '<div class="filters"><div class="field"><label for="club-query">Search clubs or towns</label><input id="club-query" type="search" placeholder="e.g. Bangor, Belfast, Hillsborough"></div><div class="field"><label for="club-region">Council area</label><select id="club-region"><option value="">All areas</option>'+[...new Set(CLUBS.map(c=>c.area))].sort().map(x=>'<option>'+esc(x)+'</option>').join("")+'</select></div></div><p class="results-count" id="club-count" aria-live="polite">'+CLUBS.length+' clubs listed</p><div class="cards" id="club-list">'+CLUBS.map(clubCard).join("")+'</div><div class="empty" id="club-empty" hidden><h3>No matching clubs</h3><p>Try a different town or area.</p></div>');
 }
 function international(){
@@ -151,14 +156,14 @@ function calendar(offset=0){
   const matches=events.filter(e=>e.startDate<=date&&(e.endDate||e.startDate)>=date);
   return '<div class="calendar-day'+(date===today?' today':'')+'"><span>'+day+'</span>'+matches.map(e=>'<small>'+esc(e.title)+'</small>').join("")+'</div>';
  })).join("");
- return '<div class="calendar"><div class="calendar-heading"><button type="button" data-month="-1" aria-label="Previous month">‹</button><h3 aria-live="polite">'+esc(label)+'</h3><button type="button" data-month="1" aria-label="Next month">›</button></div><div class="calendar-grid">'+["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>'<span class="calendar-weekday">'+d+'</span>').join("")+cells+'</div></div>'+(events.length?'<div class="timeline">'+events.map(e=>'<article class="event"><div class="event-date">'+esc(e.startDate)+'</div><div><h3>'+esc(e.title)+'</h3><p>'+esc(e.venue||"Venue to be confirmed")+'</p></div></article>').join("")+'</div>':'<div class="empty"><h3>No approved forthcoming events</h3><p>New fixtures and tournaments will appear after NIWFF approval.</p></div>');
+ return '<div class="calendar"><div class="calendar-heading"><button type="button" data-month="-1" aria-label="Previous month">‹</button><h3 aria-live="polite">'+esc(label)+'</h3><button type="button" data-month="1" aria-label="Next month">›</button></div><div class="calendar-grid">'+["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>'<span class="calendar-weekday">'+d+'</span>').join("")+cells+'</div></div>'+(events.length?'<div class="timeline">'+events.map(e=>'<article class="event"><div class="event-date">'+esc(e.startDate)+'</div><div><h3>'+esc(e.title)+'</h3><p>'+esc(e.venue||"Venue to be confirmed")+'</p><p>'+esc(e.club||"")+'</p><details><summary>Event details</summary><p>'+esc(e.description||"")+'</p><p>'+esc(e.time||"")+'</p><p>'+esc(e.eligibility||"")+'</p><p>'+esc(e.cost||"")+'</p>'+(e.registration&&/^https?:\/\//i.test(e.registration)?'<a href="'+esc(e.registration)+'">Registration / more information ↗</a>':'')+(e.poster&&/^https?:\/\//i.test(e.poster)?'<p><a href="'+esc(e.poster)+'">Event poster ↗</a></p>':'')+'</details></div></article>').join("")+'</div>':'<div class="empty"><h3>No approved forthcoming events</h3><p>New fixtures and tournaments will appear after NIWFF approval.</p></div>');
 }
 function competitions(){
  title("Competitions & Events");
  const p=todayParts(),today=p.year+"-"+p.month+"-"+p.day;
  const completed=UPCOMING.filter(e=>e.approved===true&&(e.endDate||e.startDate)<today).map(e=>({...e,year:Number(e.startDate.slice(0,4))}));
  return intro("On the pitch","Competitions & Events","Forthcoming fixtures and tournaments, and an archive of past events.")+
- section('<h2>Calendar of forthcoming events</h2><div id="event-calendar">'+calendar()+'</div>')+
+ section('<div class="section-head"><h2>Calendar of forthcoming events</h2><a class="btn btn-dark" href="/submit.php?kind=event">Create an Event</a></div><div id="event-calendar">'+calendar()+'</div>')+
  section('<h2>Past Events</h2>'+notice("Historical calendar listings are not necessarily confirmed results.")+archive("events",completed.concat(historicalEvents),eventCards),"soft");
 }
 function news(){
@@ -202,7 +207,7 @@ function render(){
  const cal=document.getElementById("event-calendar");
  if(cal){let offset=0;cal.addEventListener("click",e=>{const button=e.target.closest("button[data-month]");if(button){offset+=Number(button.dataset.month);cal.innerHTML=calendar(offset);cal.querySelector('button[data-month="'+button.dataset.month+'"]').focus();}});}
  const information=document.querySelector('.footer-inner > div:last-child .footer-links');
- if(information) information.insertAdjacentHTML('beforeend','<a href="'+LINKS.ifa+'">Irish FA website ↗</a><a href="'+LINKS.walking+'">Irish FA walking football ↗</a><a href="'+LINKS.facebook+'">NI Walking Football Facebook Group ↗</a><a href="/contact/">'+LINKS.email+(EMAIL_ACTIVE?'':' (proposed)')+'</a>');
+ if(information&&!information.querySelector('[data-federation-link]')) information.insertAdjacentHTML('beforeend','<a data-federation-link href="'+LINKS.ifa+'">Irish FA website ↗</a><a href="'+LINKS.walking+'">Irish FA walking football ↗</a><a href="'+LINKS.facebook+'">NI Walking Football Facebook Group ↗</a><a href="/contact/">'+LINKS.email+(EMAIL_ACTIVE?'':' (proposed)')+'</a>');
 
  const query=document.getElementById("club-query"),region=document.getElementById("club-region");
  if(query && region){
@@ -220,4 +225,17 @@ document.getElementById("nav-toggle").addEventListener("click",function(){
  const nav=document.getElementById("site-nav"),open=nav.classList.toggle("open");
  this.setAttribute("aria-expanded",String(open));
 });
-render();
+async function loadPublic(){
+ try{
+  const response=await fetch("/api/public.php",{credentials:"same-origin",cache:"no-store"});
+  if(!response.ok)return;
+  const data=await response.json();
+  if(Array.isArray(data.events))UPCOMING=data.events.filter(e=>e.approved===true);
+  if(Array.isArray(data.clubs)){
+   const approved=data.clubs.filter(c=>c.approved===true).map(c=>({...c,slug:"approved-"+c.id,link:c.website}));
+   const names=new Set(approved.map(c=>c.name.trim().toLowerCase()));
+   CLUBS=approved.concat(CLUBS.filter(c=>!names.has(c.name.trim().toLowerCase())));
+  }
+ }catch(e){console.warn("NIWFF publication feed unavailable");}
+}
+loadPublic().then(()=>render());
