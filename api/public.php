@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__.'/scripts/portal.php';
+require dirname(__DIR__).'/scripts/portal.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 try{
