@@ -138,3 +138,6 @@ h3{font-size:1.2rem}
 .calendar-day.today{border:2px solid var(--green);background:#e6f4e9;color:#174c39}
 .calendar-day small{display:block;font-size:.7rem;color:var(--green);margin-top:6px}
 @media(max-width:600px){.year-tabs button{flex:1 0 28%;min-width:0;padding:10px 5px}.calendar{padding:12px}.calendar-day{min-height:45px;padding:4px;font-size:.85rem}.calendar-grid{gap:2px}}
+
+/* Database-backed submission and administration pages */
+.portal-form{max-width:850px;margin:24px 0;display:grid;gap:18px}.portal-form .field{min-width:0}.portal-form textarea{width:100%;padding:12px;border:1px solid #a9c3c2;border-radius:8px;font:inherit;color:var(--ink);resize:vertical}.portal-form h2{font-size:1.4rem;margin-top:14px}.portal-form label{font-weight:650}.table-scroll{overflow-x:auto}.review-table{width:100%;border-collapse:collapse;text-align:left}.review-table th,.review-table td{padding:12px;border-bottom:1px solid var(--line)}.portal-form button{justify-self:start}.button-row{margin-bottom:18px}
