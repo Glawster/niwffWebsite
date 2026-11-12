@@ -121,3 +121,7 @@ The forms, database schema, authenticated review queue, publication feed, calend
 Acceptance: pending submissions are persisted but absent from public views; admin approval publishes the correct record; rejected/withdrawn records are absent from the approved feed; private contacts and notes never appear in public responses; completed events enter the correct archive year; invalid data and unauthorised reviews are refused; administrators can inspect decision history.
 
 See [database workflow setup and acceptance checklist](databaseWorkflows.md), [staging deployment](stagingDeployment.md), [content migration model](contentMigrationModel.md) and [requirements](../REQUIREMENTS.md).
+
+## Website version
+
+The authoritative version is the CSS custom property `--siteVersion` in root-level `version.css`, matching the HWFC approach. The shared `assets/site.css` imports it and renders “Website version …” at the foot of all public pages and PHP submission/administration screens. The initial staging development version is 0.1a1. Update the single source for each distinct shared development build; do not reuse a published version. Release numbering follows the shared release policy and project-specific instructions. Git deployment does not require a separate version-generation step.
