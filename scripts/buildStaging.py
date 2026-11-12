@@ -21,7 +21,7 @@ PAGES = [
     "news/index.html", "gallery/index.html", "resources/index.html",
     "about/index.html", "contact/index.html",
 ]
-FILES = PAGES + ["assets/site.css", "assets/site.js"]
+FILES = PAGES + ["assets/site.css", "assets/site.js", "version.css"]
 # Historical routes: preserve publicly linked URLs after cut-over.
 REDIRECTS = {
     "player-profiles": "/international-teams/",
