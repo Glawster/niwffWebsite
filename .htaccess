@@ -14,10 +14,15 @@ ErrorDocument 404 /404.html
   RewriteRule ^player-profiles/?$ /international-teams/ [R=302,L,NC]
   RewriteRule ^latest-news/?$ /news/ [R=302,L,NC]
   RewriteRule ^affiliated-clubs/?$ /find-a-club/ [R=302,L,NC]
-  RewriteRule ^gallery/?$ /news/ [R=302,L,NC]
 </IfModule>
 
-# Block hidden files (including .env and .htpasswd) without interfering with\n# requests for ACME tokens inside the .well-known directory.\n<FilesMatch "^\\.">\n  Require all denied\n</FilesMatch>\n\n# Also block direct requests for project metadata and non-public source formats.
+# Block hidden files (including .env and .htpasswd) without interfering with
+# requests for ACME tokens inside the .well-known directory.
+<FilesMatch "^\\.">
+  Require all denied
+</FilesMatch>
+
+# Also block direct requests for project metadata and non-public source formats.
 <FilesMatch "(?i)^(?:README\.md|REQUIREMENTS\.md|\.gitignore|\.gitattributes|composer\.json|package(?:-lock)?\.json|pyproject\.toml|.*\.(?:md|markdown|ya?ml|toml|ini|conf|log|sql|sqlite|db|py|sh|json))$">
   Require all denied
 </FilesMatch>
