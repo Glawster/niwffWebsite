@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__.'/scripts/portal.php';
+require dirname(__DIR__).'/scripts/portal.php';
 session_start_safe();
 try { $pdo=db(); } catch(Throwable $e){http_response_code(503);page('Administration','<div class="notice">Database not configured.</div>');exit;}
 $errors=[];
