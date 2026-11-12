@@ -2,9 +2,14 @@
 "use strict";
 const NAV=[
   ["/","Home"],["/find-a-club/","Find a Club"],["/competitions/","Events"],
-  ["/international-teams/","International Teams"],["/news/","News"],
+  ["/international-teams/","International Teams"],["/news/","News"],["/gallery/","Photos"],
   ["/resources/","Resources"],["/about/","About"],["/contact/","Contact"]
 ];
+const LINKS={ifa:"https://www.irishfa.com/",walking:"https://www.irishfa.com/irish-fa-foundation/community-volunteering/walking-football",facebook:"https://www.facebook.com/groups/602931127880903/",email:"info@niwalkingfootball.com"};
+const EMAIL_ACTIVE=false;
+const YEAR=Number(new Intl.DateTimeFormat("en-GB",{year:"numeric",timeZone:"Europe/London"}).format(new Date()));
+const YEARS=Array.from({length:5},(_,i)=>String(YEAR-i)).concat("older");
+const UPCOMING=[];
 const TEAM=[
   {slug:"over-60s",name:"Over 60s",evidence:"The legacy website contains a named Over-60 squad and references to several international tournaments."},
   {slug:"over-65s",name:"Over 65s",evidence:"The legacy 2025 international competition calendar includes Northern Ireland Over-65s."},
@@ -86,20 +91,85 @@ function teamPage(slug){
  return intro("International Teams","Northern Ireland "+t.name,"Representative walking football • "+t.name+" category")+
  section('<div class="breadcrumb"><a href="/international-teams/">← All international teams</a></div>'+notice("Current squad members, team management, eligibility and fixtures must be confirmed before publication.")+
  '<div class="content-grid"><div><article class="panel"><p class="eyebrow">The team</p><h2>About this squad</h2><p>'+esc(t.evidence)+'</p><p>Information about the current season, squad members, staff and international programme will appear here when approved.</p></article><div class="panel" style="margin-top:22px"><h2>Squad & management</h2><div class="empty"><h3>Squad announcement pending</h3><p>Confirmed players, coaches and photographs will be added following NIWFF approval.</p></div></div></div><aside class="panel"><h3>Team overview</h3><p><strong>Category:</strong> '+esc(t.name)+'</p><p><strong>Current season:</strong> Awaiting confirmation</p><p><strong>Fixtures:</strong> Awaiting approval</p><p><strong>Previous tournaments:</strong> Historical records available</p><a href="/competitions/">Browse competitions →</a></aside></div>')+
+ section('<h2>Match reports & tournament history</h2>'+archive('team-history',historicalNews.filter(n=>n.title.includes(t.name.replace('Over ','Over-'))||n.title.includes('Malmö')),storyCards),'soft')+
  section('<div class="section-head"><div><p class="eyebrow">Other squads</p><h2>Explore other age groups</h2></div></div><div class="cards two">'+TEAM.filter(x=>x.slug!==slug).map(teamCard).join("")+'</div>','soft');
+}
+function archive(id,records,renderItems){
+ const tabs=YEARS.map((y,i)=>'<button type="button" role="tab" id="'+id+'-tab-'+y+'" aria-controls="'+id+'-panel-'+y+'" aria-selected="'+(i===0)+'" tabindex="'+(i===0?0:-1)+'">'+(y==="older"?"OLDER":y)+'</button>').join("");
+ const panels=YEARS.map((y,i)=>{
+  const rows=records.filter(r=>y==="older"?Number.isInteger(r.year)&&r.year<YEAR-4:r.year===Number(y));
+  return '<div role="tabpanel" id="'+id+'-panel-'+y+'" aria-labelledby="'+id+'-tab-'+y+'" tabindex="0" '+(i?"hidden":"")+'>'+(rows.length?renderItems(rows):'<div class="empty"><h3>No records for '+(y==="older"?"earlier years":y)+'</h3><p>Reviewed content will appear here as it is added.</p></div>')+'</div>';
+ }).join("");
+ const unknown=records.filter(r=>!Number.isInteger(r.year));
+ return '<div class="archive" data-archive><div class="year-tabs" role="tablist" aria-label="Archive year">'+tabs+'</div>'+panels+(unknown.length?'<details class="undated"><summary>Undated records awaiting verification ('+unknown.length+')</summary>'+renderItems(unknown)+'</details>':'')+'</div>';
+}
+function bindArchives(){
+ document.querySelectorAll("[data-archive]").forEach(group=>{
+  const tabs=Array.from(group.querySelectorAll('[role="tab"]'));
+  function activate(index,focus){
+   tabs.forEach((tab,i)=>{
+    tab.setAttribute("aria-selected",String(i===index));tab.tabIndex=i===index?0:-1;
+    document.getElementById(tab.getAttribute("aria-controls")).hidden=i!==index;
+   });
+   if(focus)tabs[index].focus();
+  }
+  tabs.forEach((tab,i)=>{
+   tab.addEventListener("click",()=>activate(i,false));
+   tab.addEventListener("keydown",e=>{
+    const next=e.key==="ArrowRight"?(i+1)%tabs.length:e.key==="ArrowLeft"?(i+tabs.length-1)%tabs.length:e.key==="Home"?0:e.key==="End"?tabs.length-1:null;
+    if(next!==null){e.preventDefault();activate(next,true);}
+   });
+  });
+ });
+}
+const historicalEvents=EVENTS.map(e=>({year:2025,date:e[0],title:e[1],description:e[2]})).concat([
+ {year:2026,date:"17 Apr 2026",title:"Friendly matches against England",description:"Avoniel; original gallery lists this event."},
+ {year:null,date:"5–6 June (year unconfirmed)",title:"International walking football tournament",description:"Midgley Park; the original gallery does not specify the year."}
+]);
+const historicalNews=NEWS.map(n=>({year:/^\d{4}$/.test(n[1])?Number(n[1]):null,title:n[0],description:n[2]}));
+const historicalPhotos=[
+ {year:2026,title:"Friendly matches against England",description:"Avoniel, 17 April 2026. Recovered photos await individual identification."},
+ {year:null,title:"International tournament, Midgley Park",description:"5–6 June; event year and individual image captions need confirmation."}
+];
+function eventCards(items){
+ return '<div class="timeline">'+items.map(e=>'<article class="event"><div class="event-date">'+esc(e.date||e.startDate)+'</div><div><h3>'+esc(e.title)+'</h3><p>'+esc(e.description||e.venue||"")+'</p><span class="tag tag-archive">Historical listing</span></div></article>').join("")+'</div>';
+}
+function storyCards(items){
+ return '<div class="cards">'+items.map(n=>'<article class="card"><div class="kicker">'+esc(n.year||"Date unconfirmed")+'</div><h3>'+esc(n.title)+'</h3><p>'+esc(n.description)+'</p>'+(n.url?'<a href="'+esc(n.url)+'">Read report ↗</a>':'<span class="tag tag-archive">Historical record</span>')+'</article>').join("")+'</div>';
+}
+function todayParts(){
+ const p=new Intl.DateTimeFormat("en-GB",{year:"numeric",month:"2-digit",day:"2-digit",timeZone:"Europe/London"}).formatToParts(new Date());
+ return Object.fromEntries(p.map(x=>[x.type,x.value]));
+}
+function calendar(offset=0){
+ const p=todayParts(),today=p.year+"-"+p.month+"-"+p.day;
+ const events=UPCOMING.filter(e=>e.approved===true&&/^\d{4}-\d{2}-\d{2}$/.test(e.startDate)&&(e.endDate||e.startDate)>=today).sort((a,b)=>a.startDate.localeCompare(b.startDate));
+ const first=new Date(Date.UTC(Number(p.year),Number(p.month)-1+offset,1)),year=first.getUTCFullYear(),month=first.getUTCMonth(),pad=(first.getUTCDay()+6)%7,days=new Date(Date.UTC(year,month+1,0)).getUTCDate();
+ const label=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric",timeZone:"UTC"}).format(first);
+ const cells=Array.from({length:pad},()=>'<span aria-hidden="true"></span>').concat(Array.from({length:days},(_,i)=>{
+  const day=i+1,date=year+"-"+String(month+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+  const matches=events.filter(e=>e.startDate<=date&&(e.endDate||e.startDate)>=date);
+  return '<div class="calendar-day'+(date===today?' today':'')+'"><span>'+day+'</span>'+matches.map(e=>'<small>'+esc(e.title)+'</small>').join("")+'</div>';
+ })).join("");
+ return '<div class="calendar"><div class="calendar-heading"><button type="button" data-month="-1" aria-label="Previous month">‹</button><h3 aria-live="polite">'+esc(label)+'</h3><button type="button" data-month="1" aria-label="Next month">›</button></div><div class="calendar-grid">'+["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>'<span class="calendar-weekday">'+d+'</span>').join("")+cells+'</div></div>'+(events.length?'<div class="timeline">'+events.map(e=>'<article class="event"><div class="event-date">'+esc(e.startDate)+'</div><div><h3>'+esc(e.title)+'</h3><p>'+esc(e.venue||"Venue to be confirmed")+'</p></div></article>').join("")+'</div>':'<div class="empty"><h3>No approved forthcoming events</h3><p>New fixtures and tournaments will appear after NIWFF approval.</p></div>');
 }
 function competitions(){
  title("Competitions & Events");
- return intro("On the pitch","Competitions & Events","Fixtures, tournaments and representative-team activity across Northern Ireland and beyond.")+
- section('<div class="section-head"><div><p class="eyebrow">Coming up</p><h2>Upcoming events</h2></div></div><div class="empty"><h3>No verified upcoming fixtures yet</h3><p>NIWFF will add approved events to the new calendar when the current programme is confirmed.</p></div>')+
- section('<p class="eyebrow">From the archive</p><h2>2025 competition history</h2>'+notice("These entries were recovered from the original 2025 calendar. They are historical listings, not announcements of upcoming events or confirmed results.")+
- '<div class="timeline">'+EVENTS.map(e=>'<article class="event"><div class="event-date">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>📍 '+esc(e[2])+'</p><span class="tag tag-archive">Historical listing</span></div></article>').join("")+'</div>','soft');
+ const p=todayParts(),today=p.year+"-"+p.month+"-"+p.day;
+ const completed=UPCOMING.filter(e=>e.approved===true&&(e.endDate||e.startDate)<today).map(e=>({...e,year:Number(e.startDate.slice(0,4))}));
+ return intro("On the pitch","Competitions & Events","Forthcoming fixtures and tournaments, and an archive of past events.")+
+ section('<h2>Calendar of forthcoming events</h2><div id="event-calendar">'+calendar()+'</div>')+
+ section('<h2>Past Events</h2>'+notice("Historical calendar listings are not necessarily confirmed results.")+archive("events",completed.concat(historicalEvents),eventCards),"soft");
 }
 function news(){
- title("News");
- return intro("Latest stories","News & Updates","Federation stories, international team coverage and walking football news from across Northern Ireland.")+
- section(notice("These topics were recovered from the legacy news page. Dates and original articles need editorial review before they are published as full news stories.")+
- '<div class="cards">'+NEWS.map(n=>'<article class="card"><div class="kicker">'+esc(n[1])+' · Archive</div><h3>'+esc(n[0])+'</h3><p>'+esc(n[2])+'</p><span class="tag tag-archive">Historical summary</span></article>').join("")+'</div>');
+ title("News & Match Reports");
+ return intro("Latest stories","News & Match Reports","Federation news, match reports and international coverage, organised by year.")+
+ section(archive("news",historicalNews,storyCards));
+}
+function gallery(){
+ title("Photo Gallery");
+ return intro("In pictures","Photo Gallery","Browse historical walking football events and photo collections by year.")+
+ section(notice("Recovered photographs are retained in the archive; their dates, captions and publication permissions must be confirmed before showing individual images.")+archive("gallery",historicalPhotos,storyCards));
 }
 function resources(){
  title("Resources");
@@ -120,14 +190,20 @@ function about(){
 function contact(){
  title("Contact");
  return intro("Get in touch","Contact NIWFF","Questions about clubs, events, international teams or the federation?")+
- section('<div class="content-grid"><div class="panel"><h2>Contact the federation</h2>'+notice("The former website listed individual contact information. We are confirming the current federation contact route before enabling direct enquiries.")+'<p>For now, you can use the publicly linked NI walking football community group to find federation updates.</p><div class="button-row"><a href="https://www.facebook.com/groups/602931127880903/" class="btn btn-dark" target="_blank" rel="noopener noreferrer">NI walking football Facebook ↗</a><a href="/find-a-club/" class="btn btn-outline">Explore clubs</a></div></div><aside class="panel"><h3>What can we help with?</h3><ul><li>Finding a local club</li><li>Federation events and competitions</li><li>International representative teams</li><li>Club affiliation and general information</li></ul></aside></div>');
+ section('<div class="content-grid"><div class="panel"><h2>Contact the federation</h2>'+notice("The former website listed individual contact information. We are confirming the current federation contact route before enabling direct enquiries.")+'<p><strong>Proposed federation email:</strong> info@niwalkingfootball.com (mailbox not yet confirmed).</p><p>For now, use the Facebook group to get in touch.</p><p><a href="https://www.irishfa.com/">Irish FA website ↗</a></p><div class="button-row"><a href="https://www.facebook.com/groups/602931127880903/" class="btn btn-dark" target="_blank" rel="noopener noreferrer">NI Walking Football Facebook Group ↗</a><a href="/find-a-club/" class="btn btn-outline">Explore clubs</a></div></div><aside class="panel"><h3>What can we help with?</h3><ul><li>Finding a local club</li><li>Federation events and competitions</li><li>International representative teams</li><li>Club affiliation and general information</li></ul></aside></div>');
 }
 function notFound(){title("Page not found");return intro("404","Page not found","The page you requested is unavailable.")+section('<p><a href="/" class="btn btn-dark">Return to homepage</a></p>');}
 function render(){
  const teamMatch=path.match(/^\/international-teams\/(over-60s|over-65s|over-70s)$/);
- const view=path==="/"?home():path==="/find-a-club"?clubs():path==="/competitions"?competitions():path==="/international-teams"?international():teamMatch?teamPage(teamMatch[1]):path==="/news"?news():path==="/resources"?resources():path==="/about"?about():path==="/contact"?contact():notFound();
+ const view=path==="/"?home():path==="/find-a-club"?clubs():path==="/competitions"?competitions():path==="/international-teams"?international():teamMatch?teamPage(teamMatch[1]):path==="/news"?news():path==="/gallery"?gallery():path==="/resources"?resources():path==="/about"?about():path==="/contact"?contact():notFound();
  document.getElementById("site-nav").innerHTML=NAV.map(([url,name])=>'<a href="'+url+'" '+((path===url.replace(/\/$/,"")||path===url||((path.startsWith("/international-teams/"))&&url==="/international-teams/"))?'aria-current="page"':'')+'>'+name+'</a>').join("");
  app.innerHTML=view;
+ bindArchives();
+ const cal=document.getElementById("event-calendar");
+ if(cal){let offset=0;cal.addEventListener("click",e=>{const button=e.target.closest("button[data-month]");if(button){offset+=Number(button.dataset.month);cal.innerHTML=calendar(offset);cal.querySelector('button[data-month="'+button.dataset.month+'"]').focus();}});}
+ const information=document.querySelector('.footer-inner > div:last-child .footer-links');
+ if(information) information.insertAdjacentHTML('beforeend','<a href="'+LINKS.ifa+'">Irish FA website ↗</a><a href="'+LINKS.walking+'">Irish FA walking football ↗</a><a href="'+LINKS.facebook+'">NI Walking Football Facebook Group ↗</a><a href="/contact/">'+LINKS.email+(EMAIL_ACTIVE?'':' (proposed)')+'</a>');
+
  const query=document.getElementById("club-query"),region=document.getElementById("club-region");
  if(query && region){
   const update=()=>{
