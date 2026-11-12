@@ -53,3 +53,7 @@ A tracked root `.htaccess` prevents HTTP access to `.git`, legacy `data/` (inclu
 See [staging deployment instructions](documentation/stagingDeployment.md) for cloning/moving the repo into the web root, DNS/SSL checks and the necessary 403 tests. The optional static package builder and CI remain available for separate archived artifacts but are not part of normal deployment.
 
 The replacement has **not** been deployed to a server. Do not change the existing DNS/hosting until new content, review workflow, accessibility, redirects and rollback are verified.
+
+## Database-backed submissions (staging)
+
+The initial PHP/MySQL workflow adds Create an Event, Register My Club and an authenticated administration review queue. The existing website remains the Git checkout document root. See [database setup and acceptance tests](documentation/databaseWorkflows.md) before enabling the forms. No database credentials or user accounts are shipped in Git.
