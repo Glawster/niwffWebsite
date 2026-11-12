@@ -4,6 +4,8 @@ NIWFF website redevelopment project. The existing public website remains at http
 
 ## Documentation
 
+- [Website design and approval workflows](documentation/siteDesign.md)
+
 - [Staging build and deployment instructions](documentation/stagingDeployment.md)
 - [Legacy-site content migration model](documentation/contentMigrationModel.md)
 - [Legacy-site review and outstanding decisions](project/reviews/2026-11-06-legacySiteReview.md)
