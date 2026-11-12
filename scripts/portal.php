@@ -109,7 +109,7 @@ function page(string $title,string $body): void {
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store');
     header("X-Robots-Tag: noindex, nofollow");
-    echo '<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'.h($title).' | NIWFF</title><link rel="stylesheet" href="/assets/site.css"><header class="site-header"><div class="shell header-row"><a class="brand" href="/">NI Walking Football Federation</a><nav><a style="color:white" href="/competitions/">Events</a> · <a style="color:white" href="/find-a-club/">Find a Club</a></nav></div></header><main class="shell section"><h1>'.h($title).'</h1>'.$body.'</main></html>';
+    echo '<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'.h($title).' | NIWFF</title><link rel="stylesheet" href="/assets/site.css"><header class="site-header"><div class="shell header-row"><a class="brand" href="/">NI Walking Football Federation</a><nav><a style="color:white" href="/competitions/">Events</a> · <a style="color:white" href="/find-a-club/">Find a Club</a></nav></div></header><main class="shell section"><h1>'.h($title).'</h1>'.$body.'<footer class="portal-version"></footer></main></html>';
 }
 function errors_html(array $errors): string {
     return $errors?'<div class="notice" role="alert"><ul>'.implode('',array_map(fn($e)=>'<li>'.h($e).'</li>',$errors)).'</ul></div>':'';
