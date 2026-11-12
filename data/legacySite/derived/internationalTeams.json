@@ -1,0 +1,47 @@
+[
+  {
+    "id": "ni-over-60",
+    "name": "Northern Ireland Over 60s",
+    "ageCategory": "over-60",
+    "genderCategory": null,
+    "season": null,
+    "source": "playerProfiles.md and latestNews.md",
+    "legacyEvidence": "National Over 60 Squad, FIWFA World Nations Cup and IWFF World Championship references",
+    "staff": [],
+    "players": [],
+    "fixtures": [],
+    "results": [],
+    "recordStatus": "historical_unverified",
+    "publishReady": false
+  },
+  {
+    "id": "ni-over-65",
+    "name": "Northern Ireland Over 65s",
+    "ageCategory": "over-65",
+    "genderCategory": null,
+    "season": null,
+    "source": "latestNews.md",
+    "legacyEvidence": "NI65s listed in the 2025 international calendar",
+    "staff": [],
+    "players": [],
+    "fixtures": [],
+    "results": [],
+    "recordStatus": "historical_unverified",
+    "publishReady": false
+  },
+  {
+    "id": "ni-over-70",
+    "name": "Northern Ireland Over 70s",
+    "ageCategory": "over-70",
+    "genderCategory": null,
+    "season": null,
+    "source": "latestNews.md",
+    "legacyEvidence": "NI70s listed in the 2025 international calendar and Seaview match report",
+    "staff": [],
+    "players": [],
+    "fixtures": [],
+    "results": [],
+    "recordStatus": "historical_unverified",
+    "publishReady": false
+  }
+]

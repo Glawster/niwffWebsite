@@ -62,3 +62,73 @@ A future enhancement may automate or partially automate creation of the Facebook
 #### Status
 
 Backlog item — requirements definition and implementation planning required.
+
+
+### International Teams section (all representative age groups)
+
+Provide a prominent **International Teams** top-level navigation item with an overview page at `/international-teams` and dedicated pages for each current NIWFF representative squad. Do not restrict the section to the existing Over-60 player-profile page.
+
+#### International Teams overview
+
+- Introduce the Northern Ireland walking football international programme and how teams represent NIWFF.
+- Show a card for each approved/current squad, grouped by age category and, where relevant, men's and women's squads.
+- Support age groups such as **Over 60s, Over 65s and Over 70s**, already mentioned in the legacy site, plus any other age groups NIWFF confirms; do not imply that all categories are currently active.
+- Link each squad card to a dedicated page; hide draft or inactive squads from the public overview or clearly label them as historical.
+- Highlight upcoming international fixtures and recent results using the shared Events/Results content source.
+- Link to international-team news, photographs and federation partners where appropriate.
+
+#### Individual team pages
+
+Each team page shall support:
+
+- Team name, gender/category where appropriate, and age eligibility definition (confirmed by NIWFF).
+- Team photograph and badge where authorised; accessible descriptive alternative text.
+- Current team manager, coaches and officials (subject to verification).
+- Current squad, with player name, playing role/position, optional club affiliation and photograph, only with appropriate consent.
+- Upcoming fixtures, recent results and tournament history with dates and links to event details.
+- Related news, image galleries and notable achievements.
+- Contact or enquiry route managed by NIWFF rather than publishing private player contact details.
+- Season/year selection or an archive for previous squads so past and present are not mixed.
+
+#### Editorial and data management
+
+- Teams are structured data with stable IDs and URLs, not a single hard-coded player-profile page.
+- Multiple age categories and gender divisions can be created, edited, made inactive or archived without changing site code.
+- Squad membership, staff, fixtures and results are linked to the relevant team and season.
+- No legacy names, positions, photographs or fixtures shall be displayed as current until reviewed and approved by NIWFF.
+- The recovered `/player-profiles` URL should redirect to the new International Teams section or an appropriate historical squad page after migration.
+
+#### Acceptance criteria
+
+1. International Teams is available from primary navigation and has its own landing page.
+2. An approved team can be added for a new age group without duplicating a page template or changing code.
+3. Each published team has a separate accessible, mobile-friendly page, and unpublished squads remain hidden.
+4. Fixtures and results shown on team pages match the shared Events/Results records; old fixtures never appear as upcoming.
+5. Historical staff and squad information is clearly marked by season and is never presented as current without NIWFF approval.
+6. Legacy `/player-profiles` links resolve to relevant new content through a redirect.
+
+#### Status
+
+Backlog item — content model and historical source data prepared; page implementation and NIWFF content approval outstanding.
+
+### Federation links, contact and historical archives
+
+- Provide direct links to the Irish FA website, its walking football resources and the confirmed NI Walking Football Facebook Group (https://www.facebook.com/groups/602931127880903/).
+- Use a federation-owned general enquiries mailbox, proposed as info@niwalkingfootball.com. Do not activate the email link until the mailbox and delivery have been confirmed.
+- Events shall provide a navigable monthly calendar of approved forthcoming events and a distinct Past Events section. Completed events move into history according to their end date, not their publication date.
+- All historical collections, including past events, news, match reports, photographs and team history, shall use the same rolling current-year plus previous four calendar-year tabs and an OLDER tab (2026, 2025, 2024, 2023, 2022, OLDER at initial implementation). The tabs roll forward automatically on 1 January UK time. Older records remain accessible; undated records are separately identified for editorial review rather than assigned invented dates.
+- Historical event listings must not imply results or confirmed attendance; photos require verified date, caption and permission before publishing.
+- Tabs shall support keyboard navigation, selected state, mobile layout and clear empty-year messages.
+
+Status: initial staging UI implemented; approved upcoming events, full historical content, photographs and mailbox provisioning outstanding.
+
+### Database-backed club registration and publication administration
+
+- Public Create an Event and Register My Club forms persist submissions in a MySQL/MariaDB database with pending status. No submission is published automatically.
+- Individually authenticated website administrators can review, edit, approve, reject, request changes or withdraw each submission. Decisions are recorded with administrator, time, status transition and internal note.
+- Only approved records are exposed through the publication feed; public contact fields are explicitly distinguished from private representative details. Withdrawing approval removes the record from the public feed.
+- Approved club registrations populate Find a Club; approved events populate the forthcoming calendar, then move to the correct year of Past Events when completed. Registration does not constitute formal affiliation.
+- Database credentials and configuration must remain outside the website root; admin accounts use hashed passwords. Public and administrator forms use CSRF tokens and server validation.
+- Future increments: stronger shared rate limiting, duplicate/revision management and club self-service, automated amendment/resubmission correspondence, uploaded logo/poster storage, Facebook event preparation, retention policy and administration backup/restore tests.
+
+Status: initial staging implementation committed; database provisioning, end-to-end tests and approval before public submissions are outstanding.
