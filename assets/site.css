@@ -1,3 +1,5 @@
+@import url("/version.css");
+
 /* NIWFF staging site: accessible, responsive, dependency-free styles */
 :root{
   --ink:#152d38;--muted:#5c707a;--navy:#0c2939;--deep:#082631;
@@ -141,3 +143,8 @@ h3{font-size:1.2rem}
 
 /* Database-backed submission and administration pages */
 .portal-form{max-width:850px;margin:24px 0;display:grid;gap:18px}.portal-form .field{min-width:0}.portal-form textarea{width:100%;padding:12px;border:1px solid #a9c3c2;border-radius:8px;font:inherit;color:var(--ink);resize:vertical}.portal-form h2{font-size:1.4rem;margin-top:14px}.portal-form label{font-weight:650}.table-scroll{overflow-x:auto}.review-table{width:100%;border-collapse:collapse;text-align:left}.review-table th,.review-table td{padding:12px;border-bottom:1px solid var(--line)}.portal-form button{justify-self:start}.button-row{margin-bottom:18px}
+
+/* Shared website version, matching the HWFC convention. */
+.footer-bottom::after,.portal-version::after{content:"Website version " var(--siteVersion);display:block;text-align:right;font-size:.82rem;margin-top:12px}
+.portal-version{color:var(--muted);padding-top:16px;border-top:1px solid var(--line)}
+@media(max-width:850px){.footer-bottom::after,.portal-version::after{text-align:left}}
