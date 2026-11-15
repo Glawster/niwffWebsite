@@ -180,7 +180,7 @@ function notify_submitter_review(array $submission,string $status,string $note,s
     $body = "Your NIWFF submission has been reviewed.\n"
         ."Status: {$prettyStatus}\n\n"
         .($note !== '' ? "Reviewer note:\n{$note}\n\n" : '')
-        .($amendUrl!=='' ? "Amend your existing submission (link expires in 14 days):\n{$amendUrl}\n" : "Thank you for your submission.\n");
+        .($amendUrl!=='' ? "Amend your existing submission (link expires in ".amendment_days()." days):\n{$amendUrl}\n" : "Thank you for your submission.\n");
     $headers = "From: {$from}\r\nReply-To: {$from}\r\nContent-Type: text/plain; charset=UTF-8";
 
     return @mail($to, $subject, $body, $headers)
@@ -192,10 +192,11 @@ function amendment_url(string $token): string {
     if (!preg_match('~^https://[a-zA-Z0-9.-]+(?::[0-9]+)?$~D',$base)) throw new RuntimeException('Configure site_base_url before requesting changes.');
     return $base.'/submit.php?amend='.rawurlencode($token);
 }
+function amendment_days(): int { return max(1,min(90,(int)(config()['amendment_days']??14))); }
 function issue_amendment(PDO $pdo,int $id,string $message): string {
     $token=bin2hex(random_bytes(32)); $url=amendment_url($token);
-    $q=$pdo->prepare("INSERT INTO submission_amendments(submission_id,token_hash,expires_at,message) VALUES(?,?,DATE_ADD(UTC_TIMESTAMP(),INTERVAL 14 DAY),?) ON DUPLICATE KEY UPDATE token_hash=VALUES(token_hash),expires_at=VALUES(expires_at),message=VALUES(message)");
-    $q->execute([$id,hash('sha256',$token),$message]);
+    $q=$pdo->prepare("INSERT INTO submission_amendments(submission_id,token_hash,expires_at,message) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE token_hash=VALUES(token_hash),expires_at=VALUES(expires_at),message=VALUES(message)");
+    $q->execute([$id,hash('sha256',$token),gmdate('Y-m-d H:i:s',time()+86400*amendment_days()),$message]);
     return $url;
 }
 function revoke_amendment(PDO $pdo,int $id): void {
