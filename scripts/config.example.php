@@ -8,5 +8,6 @@ return [
     'admin_email' => '',
     'from_email' => '',
     // Set to the exact HTTPS origin for this deployment; used for amendment links.
+    'amendment_days' => 14,
     'site_base_url' => 'https://stagingniwf.hillsboroughwalkingfootball.com',
 ];
