@@ -52,6 +52,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                 $q=$pdo->prepare("SELECT * FROM submissions WHERE id=? FOR UPDATE");$q->execute([$id]);$current=$q->fetch();
                 $q=$pdo->prepare("SELECT token_hash FROM submission_amendments WHERE submission_id=? AND expires_at>UTC_TIMESTAMP() FOR UPDATE");$q->execute([$id]);$live=$q->fetch();
                 if(!$current||$current['status']!=='changes_requested'||!$live||!hash_equals($live['token_hash'],(string)($_SESSION['amendment_hash']??''))) throw new RuntimeException('Amendment is no longer valid.');
+                $original=json_decode($current['payload'],true,512,JSON_THROW_ON_ERROR);
+                if(isset($original['_legacy_import'])){$values['_legacy_import']=$original['_legacy_import'];$payloadJson=json_encode($values,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);}
                 save_revision($pdo,$id,'before_submitter_update',$current['payload']);
                 $q=$pdo->prepare("UPDATE submissions SET payload=?,status='pending',published_at=NULL WHERE id=?");
                 $q->execute([$payloadJson,$id]);
