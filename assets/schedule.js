@@ -1,6 +1,18 @@
 /* Progressive enhancement for club venue and weekly session entry. */
 "use strict";
 document.addEventListener("DOMContentLoaded",()=>{
+ const picker=document.getElementById("event-venue-picker"),choice=document.getElementById("event-venue-choice"),eventVenue=document.getElementById("venue");
+ if(picker&&choice&&eventVenue){
+  picker.hidden=false;
+  choice.addEventListener("change",()=>{
+   if(choice.value!=="") eventVenue.value=choice.value;
+   else if(Array.from(choice.options).some(o=>o.value!==""&&o.value===eventVenue.value)) eventVenue.value="";
+   eventVenue.focus();
+  });
+  eventVenue.addEventListener("input",()=>{
+   choice.value=Array.from(choice.options).some(o=>o.value===eventVenue.value)?eventVenue.value:"";
+  });
+ }
  const editor=document.getElementById("schedule-editor"),hidden=document.getElementById("schedule-data");
  const venueText=document.getElementById("venue"),sessionText=document.getElementById("sessions");
  if(!editor||!hidden||!venueText||!sessionText)return;
