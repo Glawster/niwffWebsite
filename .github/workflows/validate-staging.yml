@@ -2,7 +2,7 @@ name: Validate NIWFF staging package
 
 on:
   push:
-    branches: [feature/legacy-site-recovery]
+    branches: [feature/legacy-site-recovery, feature/admin-submission-workflows]
     paths:
       - 'assets/**'
       - '**/index.html'
@@ -11,6 +11,9 @@ on:
       - 'tests/testStaging.py'
       - '.github/workflows/validate-staging.yml'
       - '.htaccess'
+      - '**/*.php'
+      - 'scripts/*.sql'
+      - 'version.css'
   workflow_dispatch:
 
 permissions:
@@ -21,8 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Lint PHP workflow files
+        run: find scripts admin api -name '*.php' -print0 | xargs -0 -n1 php -l && php -l submit.php
       - name: Check JavaScript syntax
-        run: node --check assets/site.js
+        run: node --check assets/site.js && node --check assets/schedule.js
+      - name: Validate PHP schedule rules
+        run: php tests/testSchedule.php
       - name: Validate staging package
         run: python3 -m unittest discover -s tests -p 'testStaging.py' -v
       - name: Build isolated web directory

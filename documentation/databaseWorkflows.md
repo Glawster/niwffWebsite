@@ -1,0 +1,77 @@
+# NIWFF database workflows — staging setup
+
+## Hosting and prerequisites
+
+Deploy by Git pull into the current staging root. Requires PHP 8.1+ with PDO MySQL, MariaDB/MySQL, HTTPS, PHP sessions and an approved database and mailbox. The existing static site still works when the publication API is unavailable; submission pages return 503 until the database is configured.
+
+## Database provisioning
+
+1. In cPanel **MySQL Databases**, create a dedicated NIWFF staging database and a dedicated database user. Assign only the privileges needed for this database (SELECT, INSERT, UPDATE, DELETE and schema creation for initial import). Do not reuse the HWFC database or account.
+2. Import `scripts/schema.sql` via phpMyAdmin or the MySQL CLI. Example (replace the database/user names with the actual cPanel-prefixed names):
+   ```bash
+   cd ~/public_html/stagingniwf.hillsboroughwalkingfootball.com
+   git pull --ff-only
+   mysql -u YOUR_DB_USER -p YOUR_DB_NAME < scripts/schema.sql
+   ```
+3. Create the private configuration outside public_html:
+   ```bash
+   mkdir -p ~/niwff-private
+   chmod 700 ~/niwff-private
+   cp scripts/config.example.php ~/niwff-private/config.php
+   chmod 600 ~/niwff-private/config.php
+   nano ~/niwff-private/config.php
+   ```
+   Set the actual DSN, user and password. Leave admin_email/from_email empty until verified email addresses and outbound delivery are available. Never place the config or database dump under the web root or commit credentials.
+4. Create a named administrator account per website admin:
+   ```bash
+   php scripts/createAdmin.php YOUR_USERNAME
+   ```
+   Use a strong unique password; it is read interactively and stored as a hash. No default administrator password is provided. Verify the cPanel PHP CLI uses PHP 8.1 or later.
+5. Go to `https://stagingniwf.hillsboroughwalkingfootball.com/admin/`. Sign in and use the review queue.
+
+## Publication behaviour
+
+- Public forms: `/submit.php?kind=event` and `/submit.php?kind=club`.
+- All submissions start pending. Submitter name/email are private. An optional club public email is explicitly separate.
+- Admin dashboard supports edits and decisions (pending, approved, rejected, changes requested, withdrawn), records the administrator and decision history, and allows withdrawal of published records.
+- The public endpoint `/api/public.php` emits only approved records and allow-listed public fields, not private contact details, review notes or administrator information.
+- Approved events are shown in the calendar and automatically move to Past Events when their end date has passed in UK time. Approved clubs are added to the existing directory; a legacy listing with the same name is suppressed while the approved record exists.
+- Admin notifications are optional and disabled until email settings are filled in; the dashboard queue is always the authoritative source. Changes Requested sends the original submitter a secure amendment link when outbound email and site_base_url are configured.
+- Initial implementation stores URLs for posters instead of uploads. Automatic Facebook Event creation, formal affiliation, club accounts/self-service edits, duplicate reconciliation and secure media uploads are separate increments.
+
+## Acceptance test on staging before inviting clubs
+
+Use fictitious test information and an address controlled by the tester.
+
+1. Confirm PHP responds, HTTPS works, and the admin account can sign in. Check `/api/public.php` returns JSON and initially contains no approved records.
+2. Submit a test event with a future date and a test club. Confirm receipts and database pending records, and neither appears in the public API or site.
+3. Sign in as an admin; edit a field and approve each. Verify public calendar and club detail view update after reloading. Confirm the API contains neither private email/name nor review notes. Confirm date filtering and older archive behaviour.
+4. Withdraw/reject the test records; verify they disappear from public data. Inspect the audit log.
+5. Try missing/invalid fields, end date earlier than start, invalid URL schemes, a direct unauthenticated admin review, and an invalid CSRF token. Verify they are refused.
+6. Check administrator logout and expiry, password hashing, SQL privileges, file permissions, Apache protection for scripts and data, and browser/mobile accessibility. Add server-level rate limiting for both admin sign-in and public submissions before exposing them broadly; the initial session throttle and honeypot are not a robust distributed abuse defence.
+7. Test a database backup and restore, configure retention and privacy notices, define admin access revocation and amend/resubmit handling, and confirm notification email delivery if enabled.
+
+Do not use real club representative personal information on staging until the federation approves privacy, retention, security and access arrangements. The site remains noindex, which is not an access control. Protect staging with cPanel authentication if appropriate. No existing NIWFF DNS changes are needed.
+
+## Upgrade an existing staging database
+
+Back up the database first. Switch the staging checkout to feature/admin-submission-workflows and pull. Run the additive migration (does not replace existing submissions):
+
+```bash
+mysql -u YOUR_DB_USER -p YOUR_DB_NAME < scripts/migrateAmendments.sql
+```
+
+Update the existing private config (do not overwrite credentials): set site_base_url to the exact HTTPS origin, amendment_days to 14 if desired, and verify from_email/admin_email. Grant DELETE on submission_amendments so tokens can be revoked. Restrict access to web server logs, which may contain the original bearer URL. The migration is required before admin review/maintenance will operate.
+
+Additional acceptance tests: request changes on a test club and event, verify the email excludes internal notes, open the link in a different browser, confirm pre-filled values and same reference after resubmission, confirm status pending and previous version visible. Try the used link, an expired link, a reissued link, and a token after approval; all must refuse access. Verify concurrent submissions cannot overwrite each other, and no amended records appear until approved. Confirm a new club can add multiple locations, reuse them for sessions, reject invalid time order/location, and retain existing free-text records without forced conversion. Test approved and historical club detail layouts on desktop and mobile. Verify club/event maintenance does not generate review email and that withdrawal removes the approved listing.
+
+## Import historical club records (0.1a2)
+
+After backing up the database and applying the amendment migration, run from the staging checkout:
+
+```bash
+php scripts/importLegacyClubs.php --dry-run
+php scripts/importLegacyClubs.php --apply
+```
+
+Review the dry-run output first. Nine historical drafts are sourced from the 6 November 2026 archive, in data/legacySite/derived/clubImport.json. The importer skips possible matching club names and previously imported IDs, never overwrites records, and creates pending records only. No notifications are sent. Historical personal contacts are deliberately excluded. Administrators must verify and complete missing details, add verified private representative details if requesting amendments, and approve explicitly. Convert venues and sessions to guided data only when their full addresses and times are confirmed. The original source marker is retained in the private payload. Re-run safely to check for missed entries; matching is heuristic, so manually reconcile aliases before applying. The import has not been executed against staging by the development tools.

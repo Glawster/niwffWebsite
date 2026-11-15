@@ -113,11 +113,35 @@ Backlog item — content model and historical source data prepared; page impleme
 
 ### Federation links, contact and historical archives
 
-- Provide direct links to the Irish FA website, its walking football resources and the confirmed NI Walking Football Facebook Group (https://www.facebook.com/groups/602931127880903/).
-- Use a federation-owned general enquiries mailbox, proposed as info@niwalkingfootball.com. Do not activate the email link until the mailbox and delivery have been confirmed.
+- Place external federation links (Irish FA website, Irish FA walking football resources, NI Walking Football Facebook Group and current live NIWFF website during staging) only in a Useful Links section on Resources, not in the shared footer or Contact page.
+- All public and PHP workflow footers shall display a direct mailto link labelled Contact us at info@niwalkingfootball.com. The Contact page shall use the same mailbox for enquiries. Verify mailbox delivery before production launch.
 - Events shall provide a navigable monthly calendar of approved forthcoming events and a distinct Past Events section. Completed events move into history according to their end date, not their publication date.
 - All historical collections, including past events, news, match reports, photographs and team history, shall use the same rolling current-year plus previous four calendar-year tabs and an OLDER tab (2026, 2025, 2024, 2023, 2022, OLDER at initial implementation). The tabs roll forward automatically on 1 January UK time. Older records remain accessible; undated records are separately identified for editorial review rather than assigned invented dates.
 - Historical event listings must not imply results or confirmed attendance; photos require verified date, caption and permission before publishing.
 - Tabs shall support keyboard navigation, selected state, mobile layout and clear empty-year messages.
 
 Status: initial staging UI implemented; approved upcoming events, full historical content, photographs and mailbox provisioning outstanding.
+
+### Database-backed club registration and publication administration
+
+- Public Create an Event and Register My Club forms persist submissions in a MySQL/MariaDB database with pending status. No submission is published automatically.
+- Individually authenticated website administrators can review, edit, approve, reject, request changes or withdraw each submission. Decisions are recorded with administrator, time, status transition and internal note.
+- Only approved records are exposed through the publication feed; public contact fields are explicitly distinguished from private representative details. Withdrawing approval removes the record from the public feed.
+- Approved club registrations populate Find a Club; approved events populate the forthcoming calendar, then move to the correct year of Past Events when completed. Registration does not constitute formal affiliation.
+- Database credentials and configuration must remain outside the website root; admin accounts use hashed passwords. Public and administrator forms use CSRF tokens and server validation.
+- Future increments: stronger shared rate limiting, duplicate/revision management and club self-service, automated amendment/resubmission correspondence, uploaded logo/poster storage, Facebook event preparation, retention policy and administration backup/restore tests.
+
+Status: initial staging implementation committed; database provisioning, end-to-end tests and approval before public submissions are outstanding.
+
+
+### Submission amendments and guided club schedules
+
+- The admin dashboard shall separate Submission Review, Club Maintenance and Event Maintenance. Approved club and event records become available in maintenance automatically; maintenance edits are audited and do not create a new submission.
+- Changes Requested shall require a message to the submitter separate from the private administrator note. Send a secure, expiring, single-use link to reopen the original form; default expiry 14 days, configurable. Reissuing a link invalidates the previous one. Approval, rejection, withdrawal or successful resubmission revokes any active link.
+- Resubmission shall retain the reference, return the status to pending, notify administrators, and preserve prior public field snapshots for comparison. Never publish amended data before approval. Keep original private representative contact data out of public views and immutable through amendment links.
+- Club registration and maintenance shall allow repeatable named venues/addresses and weekly session rows with day, venue selection, native start/end time controls and optional men/women/mixed category. The location selector shall reuse the entered venues. Validate references and time order server-side; retain compatibility with existing free-text records and provide a no-JavaScript fallback.
+- Approved and historical club detail pages shall use a consistent two-column layout (stacked on mobile), with historical warnings retained only where appropriate.
+
+Status: implemented on the admin development branch; database migration, outbound email and browser acceptance tests required before production.
+
+- Create an Event, event amendment and Event Maintenance forms shall offer an alphabetically sorted, deduplicated venue dropdown populated from approved structured club locations and approved event venues. Selecting a venue fills the editable name/address field. Unknown venues must remain valid; approved new event venues become available for subsequent events. Pending, rejected, withdrawn and ambiguous legacy free-text club locations shall not be automatically added. Existing event locations are preserved even if no longer in the dropdown. Manual entry remains available without JavaScript.

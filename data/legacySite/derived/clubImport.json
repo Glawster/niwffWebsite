@@ -1,0 +1,122 @@
+[
+  {
+    "legacy_id": "hillsborough",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Confirm current venue, schedule, costs, eligibility and representative. Legacy listing includes membership benefits.",
+    "payload": {
+      "name": "Hillsborough Walking Football",
+      "area": "Lisburn & Castlereagh",
+      "town": "Hillsborough / Lisburn",
+      "sessions": "Tuesday 10:30–11:30\nThursday 20:00–21:00\nSunday 11:30–12:30",
+      "cost": "£60 per year or £5 monthly, plus £2 per session; non-members £3.",
+      "description": "Walking football is part of Hillsborough Boys FC, welcoming players of all backgrounds and promoting health, friendship and enjoyment of the game.",
+      "social": "https://www.facebook.com/people/Hillsborough-Walking-Football-Club/100082995559544/"
+    }
+  },
+  {
+    "legacy_id": "ards-scrabo-strollers",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Confirm current age categories, days, times, full addresses, costs and representative.",
+    "payload": {
+      "name": "Scrabo Strollers (Ards)",
+      "area": "Ards & North Down",
+      "town": "Newtownards",
+      "venue": "Ards Blair Mayne Leisure Centre (winter); Londonderry Park (summer)",
+      "sessions": "Weekly; days and times not specified in the archived listing.",
+      "eligibility": "Historical Over 50s and Over 60s teams; new players welcome.",
+      "description": "Established in 2016, Scrabo Strollers developed Over 50s and Over 60s teams and won the Over 60s NIWFF league in 2024. The club described seasonal indoor and outdoor play in Newtownards."
+    }
+  },
+  {
+    "legacy_id": "bangor",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Legacy listing provides a club contact but no venue, session schedule, description or eligibility. Check for an existing Bangor FC registration before importing.",
+    "payload": {
+      "name": "Bangor Walking Football",
+      "area": "Ards & North Down",
+      "town": "Bangor"
+    }
+  },
+  {
+    "legacy_id": "cala",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Legacy listing provides a website and contact but no confirmed town, council area, venue or schedule.",
+    "payload": {
+      "name": "CALA Walking Football",
+      "area": "",
+      "town": "",
+      "website": "https://calawalkingfootballclub.wordpress.com"
+    }
+  },
+  {
+    "legacy_id": "shankill",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Confirm full venue address, current schedule, eligibility, description, costs and representative.",
+    "payload": {
+      "name": "Shankill Walking Football",
+      "area": "Belfast",
+      "town": "Belfast",
+      "venue": "Shankill Leisure Centre",
+      "sessions": "Wednesday 10:00–11:00"
+    }
+  },
+  {
+    "legacy_id": "avoniel",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Confirm full venue address, current schedule, eligibility, description, costs and representative.",
+    "payload": {
+      "name": "Avoniel Walking Football",
+      "area": "Belfast",
+      "town": "Belfast",
+      "venue": "Avoniel Leisure Centre",
+      "sessions": "Thursday 10:00–11:00"
+    }
+  },
+  {
+    "legacy_id": "olympia",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Legacy listing provides a contact but no venue, schedule, description or eligibility.",
+    "payload": {
+      "name": "Olympia Walking Football",
+      "area": "Belfast",
+      "town": "Belfast"
+    }
+  },
+  {
+    "legacy_id": "bravehearts",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Confirm finish time, eligibility, current fee and representative.",
+    "payload": {
+      "name": "BraveHEARTS Walking Football",
+      "area": "Belfast",
+      "town": "West Belfast",
+      "venue": "Grosvenor Recreation and Community Centre, 162 Grosvenor Road",
+      "sessions": "Friday 10:00; finish time not specified.",
+      "cost": "£2 per activity.",
+      "description": "The H.E.A.R.T. Project Healthy Living Centre introduced walking football around 2019. BraveHEARTS described playing indoors or outdoors at Grosvenor Recreation and Community Centre depending on weather."
+    }
+  },
+  {
+    "legacy_id": "banbridge",
+    "source": "data/legacySite/2026-11-06/affiliatedClubs.md",
+    "captured": "2026-11-06",
+    "review_note": "Confirm council area, full venue addresses, current schedule, eligibility, costs and representative.",
+    "payload": {
+      "name": "Banbridge Walking Football Club",
+      "area": "",
+      "town": "Banbridge / Gilford",
+      "venue": "Gilford Leisure Centre\nHavelock Park, Banbridge",
+      "sessions": "Tuesday 19:00–20:00 at Gilford Leisure Centre\nSaturday 15:00–16:00 at Havelock Park, Banbridge",
+      "eligibility": "Men aged 50 and over; all ability levels. Women's provision was described as a future aspiration.",
+      "description": "Formed in June 2024, the club described fitness, competitive opportunities, social activities and fundraising for local charities."
+    }
+  }
+]
