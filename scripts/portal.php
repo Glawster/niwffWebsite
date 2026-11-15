@@ -124,6 +124,7 @@ function validate_payload(string $kind, array $source,bool $adminClub=false): ar
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
         $raw=$source[$key] ?? '';
         $v=is_string($raw)?trim($raw):'';
+        if($kind==='club'&&$key==='area') $v=normalize_council_area($v);
         if ($required && (!$adminClub||$kind!=='club'||$key==='name') && $v==='') $errors[]="$label is required.";
         if (strlen($v)>$max) $errors[]="$label is too long.";
         if ($v!=='' && $type==='email' && !filter_var($v,FILTER_VALIDATE_EMAIL)) $errors[]="$label is invalid.";
@@ -179,7 +180,7 @@ function event_venue_selector(array $options,string $current): string {
 // All eleven Northern Ireland local government districts, using the existing
 // directory's short labels. Retain non-standard historical values only on
 // the record being edited so administrators can reconcile them safely.
-function council_area_options(iterable $records=[],string $current=''): array {
+function standard_council_areas(): array {
     $areas=[
         'Antrim & Newtownabbey',
         'Ards & North Down',
@@ -193,6 +194,19 @@ function council_area_options(iterable $records=[],string $current=''): array {
         'Mid Ulster',
         'Newry, Mourne & Down',
     ];
+    return $areas;
+}
+function normalize_council_area(string $area): string {
+    $area=trim(preg_replace('/\s+/u',' ',trim($area))??$area);
+    $area=preg_replace('/\band\b/iu','&',$area)??$area;
+    $area=trim(preg_replace('/\s*&\s*/u',' & ',$area)??$area);
+    $key=fn(string $v)=>strtolower(preg_replace('/[\s,]+/u','',$v)??$v);
+    foreach(standard_council_areas() as $known) if($key($area)===$key($known)) return $known;
+    return $area;
+}
+function council_area_options(iterable $records=[],string $current=''): array {
+    $areas=standard_council_areas();
+    $current=normalize_council_area($current);
     if($current!==''&&!in_array($current,$areas,true)) $areas[]=$current;
     natcasesort($areas);return array_values($areas);
 }
@@ -200,6 +214,8 @@ function known_council_areas(string $current=''): array {
     return council_area_options([],$current);
 }
 function council_area_field(array $options,string $current,bool $required=true): string {
+    $current=normalize_council_area($current);
+    $options=array_values(array_unique(array_map('normalize_council_area',$options)));
     $out='<div class="field"><label for="area">Council Area'.($required?' *':'').'</label><select id="area" name="area"'.($required?' required':'').'><option value=""'.($current===''?' selected':'').'>Select council area</option>';
     foreach($options as $area) $out.='<option value="'.h($area).'"'.($current===$area?' selected':'').'>'.h($area).'</option>';
     return $out.'</select></div>';
