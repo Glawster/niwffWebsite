@@ -176,9 +176,43 @@ function event_venue_selector(array $options,string $current): string {
     foreach($options as $venue) $out.='<option value="'.h($venue).'"'.($selected===$venue?' selected':'').'>'.h($venue).'</option>';
     return $out.'</select><p id="event-venue-help">Select a previously approved venue to fill in its name and address, or enter a new venue below. You can edit the details if needed.</p></div>';
 }
+// Match the council labels already used in the public directory. Add approved
+// database values so newly verified areas become available automatically.
+function council_area_options(iterable $records=[],string $current=''): array {
+    $base=['Ards & North Down','Armagh, Banbridge & Craigavon','Belfast','Lisburn & Castlereagh'];
+    $areas=[];
+    foreach($base as $area) $areas[strtolower($area)]=$area;
+    foreach($records as $record){
+        $p=json_decode((string)($record['payload']??''),true);
+        $area=is_array($p)&&is_string($p['area']??null)?trim($p['area']):'';
+        if($area!==''&&strlen($area)<=160&&!isset($areas[strtolower($area)])) $areas[strtolower($area)]=$area;
+    }
+    // Retain an existing pending/historical value without silently changing it.
+    if($current!==''&&!in_array($current,$areas,true)) $areas[]=$current;
+    $options=array_values($areas);natcasesort($options);return array_values($options);
+}
+function known_council_areas(string $current=''): array {
+    try{
+        $rows=db()->query("SELECT payload FROM submissions WHERE kind='club' AND status='approved' AND published_at IS NOT NULL ORDER BY id DESC");
+        return council_area_options($rows,$current);
+    }catch(Throwable $e){
+        error_log('NIWFF council options unavailable');
+        return council_area_options([],$current);
+    }
+}
+function council_area_field(array $options,string $current): string {
+    $out='<div class="field"><label for="area">Council Area *</label><select id="area" name="area" required><option value=""'.($current===''?' selected':'').'>Select council area</option>';
+    foreach($options as $area) $out.='<option value="'.h($area).'"'.($current===$area?' selected':'').'>'.h($area).'</option>';
+    return $out.'</select></div>';
+}
 function form_fields(string $kind,array $values=[]): string {
     $out='';
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
+        if($kind==='club'&&$key==='area'){
+            $current=(string)($values[$key]??'');
+            $out.=council_area_field(known_council_areas($current),$current);
+            continue;
+        }
         if($kind==='event'&&$key==='venue') $out.=event_venue_selector(approved_event_venues(),(string)($values[$key]??''));
         $v=h((string)($values[$key]??''));
         $attr=' id="'.h($key).'" name="'.h($key).'" maxlength="'.$max.'"'.($required?' required':'');
