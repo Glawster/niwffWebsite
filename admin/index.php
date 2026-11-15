@@ -38,6 +38,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
             if ($action==='maintain' && (!in_array($row['status'],['approved','withdrawn'],true) || !in_array($new,['approved','withdrawn'],true) || $row['kind']!==($view==='clubs'?'club':($view==='events'?'event':'')))) throw new RuntimeException('Invalid maintenance record or decision.');
             if ($action==='review' && (in_array($view,['clubs','events'],true) || in_array($row['status'],['approved','withdrawn'],true))) throw new RuntimeException('Use record maintenance for approved or withdrawn records.');
             [$payload,$validation]=validate_payload($row['kind'],$_POST);
+            $original=json_decode($row['payload'],true,512,JSON_THROW_ON_ERROR);
+            $imported=isset($original['_legacy_import']);
+            if($imported){
+                $payload['_legacy_import']=$original['_legacy_import'];
+                $name=is_string($_POST['legacy_contact_name']??null)?trim($_POST['legacy_contact_name']):$row['contact_name'];
+                $email=is_string($_POST['legacy_contact_email']??null)?trim($_POST['legacy_contact_email']):$row['contact_email'];
+                if(strlen($name)>160||strlen($email)>254||($email!==''&&!filter_var($email,FILTER_VALIDATE_EMAIL))) $validation[]='Enter valid verified representative details.';
+                if($new==='changes_requested'&&($name===''||$email==='')) $validation[]='Add a verified representative name and email before requesting changes.';
+                if($new==='pending'||$new==='rejected') $validation=array_values(array_filter($validation,fn($e)=>!str_ends_with($e,' is required.')));
+            }
             if($new==='changes_requested'&&$message==='') $validation[]='Enter a message explaining the requested changes.';
             if ($validation){$pdo->rollBack();$errors=$validation;}
             else{
@@ -46,6 +56,11 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                 if($new!=='changes_requested') revoke_amendment($pdo,$id);
                 $q=$pdo->prepare("UPDATE submissions SET payload=?,status=?,reviewer_note=?,reviewed_by=?,published_at=CASE WHEN ?='approved' THEN COALESCE(published_at,UTC_TIMESTAMP()) ELSE NULL END WHERE id=?");
                 $q->execute([json_encode($payload,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE),$new,$action==='maintain'?($row['reviewer_note']??null):$note,$who['id'],$new,$id]);
+                if($imported){
+                    $q=$pdo->prepare('UPDATE submissions SET contact_name=?,contact_email=? WHERE id=?');
+                    $q->execute([$name,$email,$id]);
+                    $row['contact_name']=$name;$row['contact_email']=$email;
+                }
                 $historyNote=($note!==''?'Internal note: '.$note."\n":'').($message!==''?'Message to submitter: '.$message."\n":'').($action==='maintain'?'Record maintenance (no submission email).':'Notification pending.');
                 $q=$pdo->prepare('INSERT INTO review_log(submission_id,admin_id,old_status,new_status,note) VALUES(?,?,?,?,?)');
                 $q->execute([$id,$who['id'],$row['status'],$new,$historyNote]);$logId=(int)$pdo->lastInsertId();$pdo->commit();
@@ -84,7 +99,11 @@ if($id){
     if(!$row||($maintenance&&($row['kind']!==($view==='clubs'?'club':'event')||!in_array($row['status'],['approved','withdrawn'],true)))){http_response_code(404);page('Not Found',$top);exit;}
     if(!$maintenance&&in_array($row['status'],['approved','withdrawn'],true)) redirect('/admin/?view='.($row['kind']==='club'?'clubs':'events').'&id='.$id);
     $payload=json_decode($row['payload'],true,512,JSON_THROW_ON_ERROR);
-    if($errors&&isset($_POST['action'])&&in_array($_POST['action'],['review','maintain'],true))[$payload,]=validate_payload($row['kind'],$_POST);
+    if($errors&&isset($_POST['action'])&&in_array($_POST['action'],['review','maintain'],true)){
+        $legacy=$payload['_legacy_import']??null;
+        [$payload,]=validate_payload($row['kind'],$_POST);
+        if($legacy!==null)$payload['_legacy_import']=$legacy;
+    }
     $options='';foreach(($maintenance?['approved','withdrawn']:['pending','approved','rejected','changes_requested','withdrawn']) as $status)$options.='<option value="'.$status.'"'.($row['status']===$status?' selected':'').'>'.h(str_replace('_',' ',$status)).'</option>';
     $history=$pdo->prepare('SELECT l.*,a.username FROM review_log l JOIN admins a ON a.id=l.admin_id WHERE submission_id=? ORDER BY l.id DESC');$history->execute([$id]);$log='';
     foreach($history as $item){
@@ -103,9 +122,14 @@ if($id){
     if(!$maintenance&&$row['status']==='changes_requested'){
         $q=$pdo->prepare('SELECT message FROM submission_amendments WHERE submission_id=?');$q->execute([$id]);$messageDefault=(string)($q->fetchColumn()?:'');
     }
+    $importInfo='';
+    if(isset($payload['_legacy_import'])){
+        $importInfo='<div class="notice">Historical import from '.h((string)$payload['_legacy_import']['captured']).'. Verify details before approval.</div>';
+    }
+    $importContact=isset($payload['_legacy_import'])?'<h2>Verified representative (private)</h2><div class="field"><label for="legacy_contact_name">Name</label><input id="legacy_contact_name" name="legacy_contact_name" maxlength="160" value="'.h($row['contact_name']).'"></div><div class="field"><label for="legacy_contact_email">Email</label><input type="email" id="legacy_contact_email" name="legacy_contact_email" maxlength="254" value="'.h($row['contact_email']).'"></div>':'';
     $recordTitle=$maintenance?($row['kind']==='club'?'Club Record: ':'Event Record: ').($payload['name']??$payload['title']??('#'.$id)):'Review #'.$id;
     $publicLink=$maintenance&&$row['status']==='approved'?'<p><a href="'.($row['kind']==='club'?'/find-a-club/?club=approved-'.$id:'/competitions/').'">View published '.h($row['kind']).' →</a></p>':'';
-    page($recordTitle,$top.$publicLink.(isset($_GET['saved'])?'<p role="status">Changes Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="'.($maintenance?'maintain':'review').'"><input type="hidden" name="id" value="'.$id.'"><input type="hidden" name="view" value="'.h($view).'">'.form_fields($row['kind'],$payload).'<div class="field"><label for="status">'.($maintenance?'Publication Status':'Review Decision').'</label><select id="status" name="status">'.$options.'</select></div>'.(!$maintenance?'<div class="field"><label for="message">Message to Submitter (required for Changes Requested)</label><textarea id="message" name="message" maxlength="4000" rows="4">'.h(is_string($_POST['message']??null)?$_POST['message']:$messageDefault).'</textarea><p>Only this message is emailed. Saving Changes Requested again issues a fresh link and invalidates the previous one.</p></div>':'').'<div class="field"><label for="note">'.($maintenance?'Internal Maintenance Note':'Internal Review Note').'</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($maintenance?'':($row['reviewer_note']??'')).'</textarea></div><button class="btn btn-dark">'.($maintenance?'Save record':'Save decision').'</button></form><h2>Review and Maintenance History</h2><ul>'.$log.'</ul><h2>Previous Versions</h2>'.($versions?:'<p>No previous versions yet.</p>'));exit;
+    page($recordTitle,$top.$publicLink.$importInfo.(isset($_GET['saved'])?'<p role="status">Changes Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="'.($maintenance?'maintain':'review').'"><input type="hidden" name="id" value="'.$id.'"><input type="hidden" name="view" value="'.h($view).'">'.$importContact.form_fields($row['kind'],$payload).'<div class="field"><label for="status">'.($maintenance?'Publication Status':'Review Decision').'</label><select id="status" name="status">'.$options.'</select></div>'.(!$maintenance?'<div class="field"><label for="message">Message to Submitter (required for Changes Requested)</label><textarea id="message" name="message" maxlength="4000" rows="4">'.h(is_string($_POST['message']??null)?$_POST['message']:$messageDefault).'</textarea><p>Only this message is emailed. Saving Changes Requested again issues a fresh link and invalidates the previous one.</p></div>':'').'<div class="field"><label for="note">'.($maintenance?'Internal Maintenance Note':'Internal Review Note').'</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($maintenance?'':($row['reviewer_note']??'')).'</textarea></div><button class="btn btn-dark">'.($maintenance?'Save record':'Save decision').'</button></form><h2>Review and Maintenance History</h2><ul>'.$log.'</ul><h2>Previous Versions</h2>'.($versions?:'<p>No previous versions yet.</p>'));exit;
 }
 if ($maintenance) {
     $kind=$view==='clubs'?'club':'event';
