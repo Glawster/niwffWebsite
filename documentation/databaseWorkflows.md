@@ -64,3 +64,14 @@ mysql -u YOUR_DB_USER -p YOUR_DB_NAME < scripts/migrateAmendments.sql
 Update the existing private config (do not overwrite credentials): set site_base_url to the exact HTTPS origin, amendment_days to 14 if desired, and verify from_email/admin_email. Grant DELETE on submission_amendments so tokens can be revoked. Restrict access to web server logs, which may contain the original bearer URL. The migration is required before admin review/maintenance will operate.
 
 Additional acceptance tests: request changes on a test club and event, verify the email excludes internal notes, open the link in a different browser, confirm pre-filled values and same reference after resubmission, confirm status pending and previous version visible. Try the used link, an expired link, a reissued link, and a token after approval; all must refuse access. Verify concurrent submissions cannot overwrite each other, and no amended records appear until approved. Confirm a new club can add multiple locations, reuse them for sessions, reject invalid time order/location, and retain existing free-text records without forced conversion. Test approved and historical club detail layouts on desktop and mobile. Verify club/event maintenance does not generate review email and that withdrawal removes the approved listing.
+
+## Import historical club records (0.1a2)
+
+After backing up the database and applying the amendment migration, run from the staging checkout:
+
+```bash
+php scripts/importLegacyClubs.php --dry-run
+php scripts/importLegacyClubs.php --apply
+```
+
+Review the dry-run output first. Nine historical drafts are sourced from the 6 November 2026 archive, in data/legacySite/derived/clubImport.json. The importer skips possible matching club names and previously imported IDs, never overwrites records, and creates pending records only. No notifications are sent. Historical personal contacts are deliberately excluded. Administrators must verify and complete missing details, add verified private representative details if requesting amendments, and approve explicitly. Convert venues and sessions to guided data only when their full addresses and times are confirmed. The original source marker is retained in the private payload. Re-run safely to check for missed entries; matching is heuristic, so manually reconcile aliases before applying. The import has not been executed against staging by the development tools.
