@@ -172,3 +172,6 @@ h3{font-size:1.2rem}
  .schedule-row{grid-template-columns:minmax(0,1fr);padding:14px;gap:12px}
  .schedule-remove{justify-self:start!important}
 }
+
+.event-venue-picker{padding:16px;background:#f7faf9;border:1px solid #bfd2d2;border-radius:10px}
+.event-venue-picker p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
