@@ -20,4 +20,20 @@ $bad=$schedule;$bad['sessions'][0]['day']='Funday';
 check((bool)$errors,'Invalid day accepted');
 [$data,$errors]=validate_payload('club',$base+['venue'=>'Existing venue','sessions'=>'Existing free-text schedule']);
 check(!$errors&&$data['sessions']==='Existing free-text schedule'&&!isset($data['schedule_data']),'Legacy free-text compatibility failed');
-echo "Schedule tests passed.".PHP_EOL;
+$records=[
+ ['kind'=>'club','payload'=>json_encode(['schedule_data'=>$schedule,'contact_email'=>'private@example.com'])],
+ ['kind'=>'club','payload'=>json_encode(['schedule_data'=>['venues'=>[['name'=>'aurora','address'=>'Test address']]]])],
+ ['kind'=>'club','payload'=>json_encode(['venue'=>'Ambiguous legacy venue text'])],
+ ['kind'=>'event','payload'=>json_encode(['venue'=>'New Sports Hall — Example Road'])],
+ ['kind'=>'event','payload'=>json_encode(['venue'=>'Aurora — Test address'])],
+];
+$options=event_venue_options($records);
+check($options===['Aurora — Test address','Clandeboye Park — Second address','New Sports Hall — Example Road'],'Venue catalogue must be sorted, deduplicated and use approved public venue fields only');
+$picker=event_venue_selector($options,'New Sports Hall — Example Road');
+check(str_contains($picker,'Other / new venue')&&str_contains($picker,'value="New Sports Hall — Example Road" selected'),'Known venue selection not retained');
+check(str_contains(event_venue_selector($options,'Unlisted location'),'value="" selected'),'New venue should select manual entry');
+check(!str_contains($picker,'private@example.com'),'Private fields exposed');
+$event=['title'=>'Test event','club'=>'Example club','type'=>'Friendly','startDate'=>'2026-12-01','description'=>'Test event','venue'=>'Unlisted hall — New address'];
+[$data,$errors]=validate_payload('event',$event);
+check(!$errors&&$data['venue']===$event['venue'],'New venue must be accepted without catalogue membership');
+echo "Schedule and venue tests passed.".PHP_EOL;
