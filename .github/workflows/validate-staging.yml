@@ -2,7 +2,7 @@ name: Validate NIWFF staging package
 
 on:
   push:
-    branches: [feature/legacy-site-recovery, feature/admin-submission-workflows]
+    branches: [feature/legacy-site-recovery, feature/admin-submission-workflows, feature/club-directory-refinements]
     paths:
       - 'assets/**'
       - '**/index.html'
