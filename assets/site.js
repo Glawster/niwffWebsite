@@ -73,12 +73,13 @@ function clubs(){
   const c=CLUBS.find(x=>x.slug===selected);
   if(!c) return notFound();
   title(c.name);
-  if(c.approved){
-   const details=[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility],["How to contact us",c.contact_method]].filter(x=>x[1]).map(([label,value])=>'<p><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join("");
-   const external=[["Club website",c.website],["Social media",c.social]].filter(x=>x[1]&&/^https?:\/\//i.test(x[1])).map(([label,url])=>'<a class="btn btn-outline" href="'+esc(url)+'" rel="noopener noreferrer">'+label+' ↗</a>').join("");
-   return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to directory</a></div><div class="panel"><span class="tag">Approved club</span><h2>About this club</h2><p>'+esc(c.description)+'</p>'+details+(c.public_email?'<p><strong>Public contact:</strong> <a href="mailto:'+esc(c.public_email)+'">'+esc(c.public_email)+'</a></p>':'')+'<div class="button-row">'+external+'</div></div>');
-  }
-  return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to club directory</a></div><div class="content-grid"><article class="panel"><h2>About this club</h2><p>'+esc(c.description)+'</p>'+notice("This profile is based on an archived website listing. Session times, eligibility, costs and contact details are not confirmed as current.")+(c.link?'<a class="btn btn-dark" target="_blank" rel="noopener noreferrer" href="'+c.link+'">Visit club website ↗</a>':'<a class="btn btn-dark" href="/contact/">Enquire through NIWFF</a>')+'</article><aside class="panel"><h3>Club record</h3><p><strong>Area:</strong> '+esc(c.area)+'</p><p><strong>Location:</strong> '+esc(c.town)+'</p><p><strong>Verification:</strong> Pending</p></aside></div>');
+  const approved=c.approved===true;
+  const details=approved?[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility]].filter(x=>x[1]).map(([label,value])=>'<p><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join(""):"";
+  const external=[["Club website",approved?c.website:c.link],["Social media",approved?c.social:null]].filter(x=>x[1]&&/^https?:\/\//i.test(x[1])).map(([label,url])=>'<p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+label+' ↗</a></p>').join("");
+  const contact=approved?(c.contact_method?'<p><strong>How to contact us:</strong> '+esc(c.contact_method)+'</p>':'')+(c.public_email?'<p><strong>Public email:</strong> <a href="mailto:'+esc(c.public_email)+'">'+esc(c.public_email)+'</a></p>':''):"";
+  const warning=approved?"":notice("This profile is based on an archived website listing. Session times, eligibility, costs and contact details are not confirmed as current.");
+  const enquiry=(!external&&!contact)?'<a class="btn btn-dark" href="/contact/">Enquire through NIWFF</a>':"";
+  return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to club directory</a></div><div class="content-grid"><article class="panel">'+(approved?'<span class="tag">Approved club</span>':'')+'<h2>About this club</h2><p>'+esc(c.description)+'</p>'+details+warning+enquiry+'</article><aside class="panel"><h3>Club record</h3><p><strong>Area:</strong> '+esc(c.area)+'</p><p><strong>Location:</strong> '+esc(c.town)+'</p><p><strong>Verification:</strong> '+(approved?'Approved':'Pending')+'</p>'+contact+external+'</aside></div>');
  }
  title("Find a Club");
  return intro("Get playing","Find a club","Explore walking football clubs in Northern Ireland. These listings are being updated and verified for the new NIWFF website.")+
