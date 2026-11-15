@@ -7,4 +7,6 @@ return [
     // Optional verified destination; empty disables email and leaves dashboard queue active.
     'admin_email' => '',
     'from_email' => '',
+    // Set to the exact HTTPS origin for this deployment; used for amendment links.
+    'site_base_url' => 'https://stagingniwf.hillsboroughwalkingfootball.com',
 ];
