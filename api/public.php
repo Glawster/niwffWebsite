@@ -10,6 +10,7 @@ try{
         $p=json_decode($row['payload'],true,512,JSON_THROW_ON_ERROR);
         // Explicit public allow-list; never expose representative contacts, notes or login information.
         $p=array_intersect_key($p,fields($row['kind']));
+        if($row['kind']==='club'&&is_string($p['area']??null)) $p['area']=normalize_council_area($p['area']);
         $p['id']=(int)$row['id'];$p['approved']=true;
         $result[$row['kind']==='club'?'clubs':'events'][]=$p;
     }
