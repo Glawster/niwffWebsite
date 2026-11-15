@@ -147,3 +147,8 @@ Status: implemented on the admin development branch; database migration, outboun
 - Create an Event, event amendment and Event Maintenance forms shall offer an alphabetically sorted, deduplicated venue dropdown populated from approved structured club locations and approved event venues. Selecting a venue fills the editable name/address field. Unknown venues must remain valid; approved new event venues become available for subsequent events. Pending, rejected, withdrawn and ambiguous legacy free-text club locations shall not be automatically added. Existing event locations are preserved even if no longer in the dropdown. Manual entry remains available without JavaScript.
 
 - Club forms shall offer a Council Area dropdown containing all eleven Northern Ireland local government districts, using consistent short labels; retain a previously saved non-standard area only when editing that record.
+
+### Database club directory and administrator editing (0.1a3)
+
+- Public Find a Club and club detail pages shall use only approved, published database records, with no hard-coded historical fallback. Pending and withdrawn records remain private. Default sort is by council area then club name; visitors can switch to alphabetical club name. Search and council filtering remain available. Unknown council areas sort last and are labelled to be confirmed.
+- Administrators may save incomplete club records in review and maintenance, including approved records; only the club name is mandatory. Unknown fields can remain blank, including guided venue and session details. Supplied values must still pass format and consistency checks. Public registration and amendment forms retain existing mandatory-field validation. Event validation is unchanged.
