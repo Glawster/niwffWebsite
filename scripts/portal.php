@@ -87,27 +87,27 @@ function valid_date(string $s): bool {
     $d=DateTimeImmutable::createFromFormat('!Y-m-d',$s);
     return $d !== false && $d->format('Y-m-d') === $s;
 }
-function validate_club_schedule(array $source): array {
+function validate_club_schedule(array $source,bool $optional=false): array {
     $raw=$source['schedule_data']??'';
     if($raw==='') return [null,[]];
     if(!is_string($raw)||strlen($raw)>30000) return [null,['Invalid structured schedule.']];
     $input=json_decode($raw,true);
-    if(!is_array($input)||!isset($input['venues'],$input['sessions'])||!is_array($input['venues'])||!is_array($input['sessions'])||count($input['venues'])<1||count($input['venues'])>10||count($input['sessions'])<1||count($input['sessions'])>30) return [null,['Enter 1–10 venues and 1–30 sessions.']];
+    if(!is_array($input)||!isset($input['venues'],$input['sessions'])||!is_array($input['venues'])||!is_array($input['sessions'])||(!$optional&&count($input['venues'])<1)||count($input['venues'])>10||(!$optional&&count($input['sessions'])<1)||count($input['sessions'])>30) return [null,['Enter 1–10 venues and 1–30 sessions.']];
     $venues=[];$sessions=[];$errors=[];
     $days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     foreach(array_values($input['venues']) as $i=>$v){
         $name=is_array($v)&&is_string($v['name']??null)?trim($v['name']):'';
         $address=is_array($v)&&is_string($v['address']??null)?trim($v['address']):'';
-        if($name===''||strlen($name)>160||$address===''||strlen($address)>300) $errors[]='Venue '.($i+1).' needs a name and address within the field limits.';
+        if((!$optional&&($name===''||$address===''))||strlen($name)>160||strlen($address)>300) $errors[]='Venue '.($i+1).' needs a name and address within the field limits.';
         $venues[]=['name'=>$name,'address'=>$address];
     }
     foreach(array_values($input['sessions']) as $i=>$v){
         $day=is_array($v)&&is_string($v['day']??null)?$v['day']:'';
-        $venue=is_array($v)&&is_int($v['venue']??null)?$v['venue']:-1;
+        $venue=is_array($v)&&is_int($v['venue']??null)?$v['venue']:null;
         $start=is_array($v)&&is_string($v['start']??null)?$v['start']:'';
         $end=is_array($v)&&is_string($v['end']??null)?$v['end']:'';
         $category=is_array($v)&&is_string($v['category']??null)?$v['category']:'';
-        if(!in_array($day,$days,true)||!isset($venues[$venue])||!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$start)||!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$end)||$end<=$start||!in_array($category,['','Men','Women','Mixed'],true)) $errors[]='Session '.($i+1).' needs a valid day, location, start and later finish time.';
+        if((!$optional||$day!=='')&&!in_array($day,$days,true)||(!$optional||$venue!==null)&&!isset($venues[$venue])||(!$optional||$start!=='')&&!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$start)||(!$optional||$end!=='')&&!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$end)||($start!==''&&$end!==''&&$end<=$start)||!in_array($category,['','Men','Women','Mixed'],true)) $errors[]='Session '.($i+1).' needs a valid day, location, start and later finish time.';
         $sessions[]=['day'=>$day,'venue'=>$venue,'start'=>$start,'end'=>$end,'category'=>$category];
     }
     return [['venues'=>$venues,'sessions'=>$sessions],$errors];
@@ -115,10 +115,10 @@ function validate_club_schedule(array $source): array {
 function validate_payload(string $kind, array $source,bool $adminClub=false): array {
     $data=[]; $errors=[];$schedule=null;
     if($kind==='club'){
-        [$schedule,$errors]=validate_club_schedule($source);
+        [$schedule,$errors]=validate_club_schedule($source,$adminClub);
         if($schedule!==null&&!$errors){
-            $source['venue']=implode("\n",array_map(fn($v)=>$v['name'].' — '.$v['address'],$schedule['venues']));
-            $source['sessions']=implode("\n",array_map(fn($v)=>$v['day'].' '.$v['start'].'–'.$v['end'].' at '.$schedule['venues'][$v['venue']]['name'].($v['category']!==''?' ('.$v['category'].')':''),$schedule['sessions']));
+            $source['venue']=implode("\n",array_map(fn($v)=>implode(' — ',array_filter([$v['name'],$v['address']],fn($x)=>$x!=='')),$schedule['venues']));
+            $source['sessions']=implode("\n",array_map(fn($v)=>trim($v['day'].' '.($v['start']!==''&&$v['end']!==''?$v['start'].'–'.$v['end']:($v['start']!==''?$v['start'].' (finish to be confirmed)':($v['end']!==''?'Finish '.$v['end']:''))).($v['venue']!==null&&($schedule['venues'][$v['venue']]['name']??'')!==''?' at '.$schedule['venues'][$v['venue']]['name']:'').($v['category']!==''?' ('.$v['category'].')':'')),$schedule['sessions']));
         }
     }
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
