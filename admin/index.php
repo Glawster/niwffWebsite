@@ -154,5 +154,30 @@ if ($maintenance) {
     $listIntro='Showing active submissions only (new and changes requested). Approved and older reviewed submissions are hidden by default.';
     $empty='No new submissions at the moment.';
 }
-$rows='';foreach($list as $row){$p=json_decode($row['payload'],true);$rows.='<tr><td><a href="/admin/?id='.(int)$row['id'].'&view='.rawurlencode($view).'">#'.(int)$row['id'].' '.h($p['title']??$p['name']??'Submission').'</a></td><td>'.h($row['kind']).'</td><td>'.h($row['status']).'</td><td>'.h($row['created_at']).'</td></tr>';}
-page($listTitle,$top.'<p>'.$listIntro.'</p><div class="panel table-scroll"><table class="review-table"><thead><tr><th>'.($maintenance?'Record':'Submission').'</th><th>Type</th><th>Status</th><th>Received (UTC)</th></tr></thead><tbody>'.$rows.'</tbody></table>'.($rows?'':'<p>'.$empty.'</p>').'</div>');
+$clubList=$view==='clubs'||$view==='old_club';
+$sortMode=($_GET['sort']??'area')==='name'?'name':'area';
+$records=$list->fetchAll();
+if($clubList){
+    foreach($records as &$record){
+        $p=json_decode($record['payload'],true);
+        $record['_area']=normalize_council_area((string)($p['area']??''));
+        $record['_name']=(string)($p['name']??'');
+    }
+    unset($record);
+    usort($records,function($a,$b)use($sortMode){
+        if($sortMode==='area'){
+            $order=(int)($a['_area']==='')<=>(int)($b['_area']==='');
+            if($order!==0)return $order;
+            $order=strnatcasecmp($a['_area'],$b['_area']);
+            if($order!==0)return $order;
+        }
+        return strnatcasecmp($a['_name'],$b['_name'])?:((int)$a['id']<=>(int)$b['id']);
+    });
+}
+$sortControl=$clubList?'<form method="get" class="filters"><input type="hidden" name="view" value="'.h($view).'"><div class="field"><label for="club-admin-sort">Sort by</label><select id="club-admin-sort" name="sort"><option value="area"'.($sortMode==='area'?' selected':'').'>Council area, then club name (A–Z)</option><option value="name"'.($sortMode==='name'?' selected':'').'>Club name (A–Z)</option></select></div><button class="btn btn-outline" type="submit">Sort</button></form>':'';
+$rows='';
+foreach($records as $row){
+    $p=json_decode($row['payload'],true);
+    $rows.='<tr><td><a href="/admin/?id='.(int)$row['id'].'&amp;view='.rawurlencode($view).'">#'.(int)$row['id'].' '.h($p['title']??$p['name']??'Submission').'</a></td>'.($clubList?'<td>'.h($row['_area']?:'To be confirmed').'</td>':'').'<td>'.h($row['kind']).'</td><td>'.h($row['status']).'</td><td>'.h($row['created_at']).'</td></tr>';
+}
+page($listTitle,$top.'<p>'.$listIntro.'</p>'.$sortControl.'<div class="panel table-scroll"><table class="review-table"><thead><tr><th>'.($maintenance?'Record':'Submission').'</th>'.($clubList?'<th>Council area</th>':'').'<th>Type</th><th>Status</th><th>Received (UTC)</th></tr></thead><tbody>'.$rows.'</tbody></table>'.($rows?'':'<p>'.$empty.'</p>').'</div>');
