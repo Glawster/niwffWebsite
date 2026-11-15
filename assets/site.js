@@ -74,7 +74,7 @@ function clubs(){
   if(!c) return notFound();
   title(c.name);
   const approved=c.approved===true;
-  const details=approved?[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility]].filter(x=>x[1]).map(([label,value])=>'<p><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join(""):"";
+  const details=approved?[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility]].filter(x=>x[1]).map(([label,value])=>'<p class="club-detail-text"><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join(""):"";
   const external=[["Club website",approved?c.website:c.link],["Social media",approved?c.social:null]].filter(x=>x[1]&&/^https?:\/\//i.test(x[1])).map(([label,url])=>'<p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+label+' ↗</a></p>').join("");
   const contact=approved?(c.contact_method?'<p><strong>How to contact us:</strong> '+esc(c.contact_method)+'</p>':'')+(c.public_email?'<p><strong>Public email:</strong> <a href="mailto:'+esc(c.public_email)+'">'+esc(c.public_email)+'</a></p>':''):"";
   const warning=approved?"":notice("This profile is based on an archived website listing. Session times, eligibility, costs and contact details are not confirmed as current.");
