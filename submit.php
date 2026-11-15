@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                 revoke_amendment($pdo,$id);
                 $pdo->commit();unset($_SESSION['amendment_hash']);
                 $_SESSION['receipt']=['id'=>$id,'kind'=>$kind];
-                try{notify_admin($id,$kind);}catch(Throwable $e){error_log('NIWFF amendment notification failed');}
+                try{notify_admin($id,$kind,true);}catch(Throwable $e){error_log('NIWFF amendment notification failed');}
                 redirect('/submit.php?kind='.$kind.'&received=1');
             }
             if (submissions_has_contact_phone($pdo)) {
