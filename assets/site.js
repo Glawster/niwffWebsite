@@ -6,7 +6,7 @@ const NAV=[
   ["/resources/","Resources"],["/about/","About"],["/contact/","Contact"]
 ];
 const LINKS={ifa:"https://www.irishfa.com/",walking:"https://www.irishfa.com/irish-fa-foundation/community-volunteering/walking-football",facebook:"https://www.facebook.com/groups/602931127880903/",email:"info@niwalkingfootball.com"};
-const EMAIL_ACTIVE=false;
+
 const YEAR=Number(new Intl.DateTimeFormat("en-GB",{year:"numeric",timeZone:"Europe/London"}).format(new Date()));
 const YEARS=Array.from({length:5},(_,i)=>String(YEAR-i)).concat("older");
 let UPCOMING=[];
@@ -182,8 +182,8 @@ function resources(){
  return intro("Playing the game","Resources","An introduction to walking football, how the game works and useful links for players and clubs.")+
  section('<div class="cards">'+card("🚶","Walking, not running","The game adapts the pace of football. Exact interpretations and competition rules should always be checked.","/about/","How it works")+
  card("🤝","Join the community","Find a welcoming place to play and make new connections.","/find-a-club/","Find a club")+
- card("🏟️","Irish FA resources","The Irish Football Association publishes information about walking football in Northern Ireland.","https://www.irishfa.com/irish-fa-foundation/community-volunteering/walking-football","IFA walking football ↗")+'</div>'+
- '<div class="panel" style="margin-top:25px"><h2>Rules and guidance</h2><p>Walking football generally limits running and physical contact and may use restrictions on ball height and heading. Specific rules vary between competitions and governing organisations. Official NIWFF competition rules will be linked here when approved.</p></div>');
+ card("⚽","Walking football rules","Learn about the rules and guidance for playing walking football.","/resources/#rules","Rules and guidance")+'</div>'+
+ '<div class="panel" id="rules" style="margin-top:25px"><h2>Rules and guidance</h2><p>Walking football generally limits running and physical contact and may use restrictions on ball height and heading. Specific rules vary between competitions and governing organisations. Official NIWFF competition rules will be linked here when approved.</p></div><div class="panel" style="margin-top:25px"><h2>Useful Links</h2><ul><li><a href="'+LINKS.ifa+'" target="_blank" rel="noopener noreferrer">Irish FA website ↗</a></li><li><a href="'+LINKS.walking+'" target="_blank" rel="noopener noreferrer">Irish FA walking football ↗</a></li><li><a href="'+LINKS.facebook+'" target="_blank" rel="noopener noreferrer">NI Walking Football Facebook Group ↗</a></li><li><a href="https://niwalkingfootball.com/" target="_blank" rel="noopener noreferrer">Current live NIWFF website ↗</a></li></ul></div>');
 }
 function about(){
  title("About NIWFF");
@@ -196,7 +196,7 @@ function about(){
 function contact(){
  title("Contact");
  return intro("Get in touch","Contact NIWFF","Questions about clubs, events, international teams or the federation?")+
- section('<div class="content-grid"><div class="panel"><h2>Contact the federation</h2>'+notice("The former website listed individual contact information. We are confirming the current federation contact route before enabling direct enquiries.")+'<p><strong>Proposed federation email:</strong> info@niwalkingfootball.com (mailbox not yet confirmed).</p><p>For now, use the Facebook group to get in touch.</p><p><a href="https://www.irishfa.com/">Irish FA website ↗</a></p><div class="button-row"><a href="https://www.facebook.com/groups/602931127880903/" class="btn btn-dark" target="_blank" rel="noopener noreferrer">NI Walking Football Facebook Group ↗</a><a href="/find-a-club/" class="btn btn-outline">Explore clubs</a></div></div><aside class="panel"><h3>What can we help with?</h3><ul><li>Finding a local club</li><li>Federation events and competitions</li><li>International representative teams</li><li>Club affiliation and general information</li></ul></aside></div>');
+ section('<div class="content-grid"><div class="panel"><h2>Contact the federation</h2><p>Contact us at <a href="mailto:'+LINKS.email+'">'+LINKS.email+'</a> for general enquiries.</p><div class="button-row"><a href="/find-a-club/" class="btn btn-outline">Explore clubs</a></div></div><aside class="panel"><h3>What can we help with?</h3><ul><li>Finding a local club</li><li>Federation events and competitions</li><li>International representative teams</li><li>Club affiliation and general information</li></ul></aside></div>');
 }
 function notFound(){title("Page not found");return intro("404","Page not found","The page you requested is unavailable.")+section('<p><a href="/" class="btn btn-dark">Return to homepage</a></p>');}
 function render(){
@@ -207,8 +207,7 @@ function render(){
  bindArchives();
  const cal=document.getElementById("event-calendar");
  if(cal){let offset=0;cal.addEventListener("click",e=>{const button=e.target.closest("button[data-month]");if(button){offset+=Number(button.dataset.month);cal.innerHTML=calendar(offset);cal.querySelector('button[data-month="'+button.dataset.month+'"]').focus();}});}
- const information=document.querySelector('.footer-inner > div:last-child .footer-links');
- if(information&&!information.querySelector('[data-federation-link]')) information.insertAdjacentHTML('beforeend','<a data-federation-link href="'+LINKS.ifa+'">Irish FA website ↗</a><a href="'+LINKS.walking+'">Irish FA walking football ↗</a><a href="'+LINKS.facebook+'">NI Walking Football Facebook Group ↗</a><a href="/contact/">'+LINKS.email+(EMAIL_ACTIVE?'':' (proposed)')+'</a>');
+
 
  const query=document.getElementById("club-query"),region=document.getElementById("club-region");
  if(query && region){
