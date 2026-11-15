@@ -135,9 +135,51 @@ function validate_payload(string $kind, array $source): array {
     if($schedule!==null) $data['schedule_data']=$schedule;
     return [$data,$errors];
 }
+// Build reusable venue options exclusively from approved public records.
+function event_venue_options(iterable $records): array {
+    $options=[];
+    foreach($records as $record){
+        $p=json_decode((string)($record['payload']??''),true);
+        if(!is_array($p)) continue;
+        $candidates=[];
+        if(($record['kind']??'')==='club'){
+            $venues=$p['schedule_data']['venues']??[];
+            if(is_array($venues)) foreach($venues as $v){
+                if(!is_array($v)||!is_string($v['name']??null)||!is_string($v['address']??null)) continue;
+                $name=trim($v['name']);$address=trim($v['address']);
+                if($name!==''&&$address!=='') $candidates[]=$name.' — '.$address;
+            }
+        }elseif(($record['kind']??'')==='event'&&is_string($p['venue']??null)){
+            $candidates[]=trim($p['venue']);
+        }
+        foreach($candidates as $venue){
+            if($venue===''||strlen($venue)>500) continue;
+            $key=strtolower(preg_replace('/\s+/',' ',trim($venue))??$venue);
+            if(!isset($options[$key])) $options[$key]=$venue;
+        }
+    }
+    $options=array_values($options);natcasesort($options);
+    return array_values($options);
+}
+function approved_event_venues(): array {
+    try{
+        $q=db()->query("SELECT kind,payload FROM submissions WHERE status='approved' AND published_at IS NOT NULL AND kind IN ('club','event') ORDER BY id DESC");
+        return event_venue_options($q);
+    }catch(Throwable $e){
+        error_log('NIWFF venue options unavailable');
+        return [];
+    }
+}
+function event_venue_selector(array $options,string $current): string {
+    $selected=in_array($current,$options,true)?$current:'';
+    $out='<div class="field event-venue-picker" id="event-venue-picker" hidden><label for="event-venue-choice">Choose a known venue</label><select id="event-venue-choice" aria-describedby="event-venue-help"><option value=""'.($selected===''?' selected':'').'>Other / new venue — enter below</option>';
+    foreach($options as $venue) $out.='<option value="'.h($venue).'"'.($selected===$venue?' selected':'').'>'.h($venue).'</option>';
+    return $out.'</select><p id="event-venue-help">Select a previously approved venue to fill in its name and address, or enter a new venue below. You can edit the details if needed.</p></div>';
+}
 function form_fields(string $kind,array $values=[]): string {
     $out='';
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
+        if($kind==='event'&&$key==='venue') $out.=event_venue_selector(approved_event_venues(),(string)($values[$key]??''));
         $v=h((string)($values[$key]??''));
         $attr=' id="'.h($key).'" name="'.h($key).'" maxlength="'.$max.'"'.($required?' required':'');
         $out.='<div class="field"><label for="'.h($key).'">'.h($label).($required?' *':'').'</label>';
