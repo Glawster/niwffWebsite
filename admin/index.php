@@ -35,16 +35,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
             $q=$pdo->prepare('SELECT * FROM submissions WHERE id=? FOR UPDATE');$q->execute([$id]);$row=$q->fetch();
             if (!$row) throw new RuntimeException('Submission not found.');
             if ($action==='maintain' && (!in_array($row['status'],['approved','withdrawn'],true) || !in_array($new,['approved','withdrawn'],true) || $row['kind']!==($view==='clubs'?'club':($view==='events'?'event':'')))) throw new RuntimeException('Invalid maintenance record or decision.');
-            if ($action==='review' && in_array($view,['clubs','events'],true)) throw new RuntimeException('Invalid review view.');
+            if ($action==='review' && (in_array($view,['clubs','events'],true) || in_array($row['status'],['approved','withdrawn'],true))) throw new RuntimeException('Use record maintenance for approved or withdrawn records.');
             [$payload,$validation]=validate_payload($row['kind'],$_POST);
             if ($validation){$pdo->rollBack();$errors=$validation;}
             else{
                 $q=$pdo->prepare("UPDATE submissions SET payload=?,status=?,reviewer_note=?,reviewed_by=?,published_at=CASE WHEN ?='approved' THEN COALESCE(published_at,UTC_TIMESTAMP()) ELSE NULL END WHERE id=?");
-                $q->execute([json_encode($payload,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE),$new,$note,$who['id'],$new,$id]);
+                $q->execute([json_encode($payload,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE),$new,$action==='maintain'?($row['reviewer_note']??null):$note,$who['id'],$new,$id]);
                 $emailAudit=$action==='maintain'?'Record maintenance (no submission email).':notify_submitter_review($row,$new,$note);
                 $historyNote=$note!=='' ? $note."\n".$emailAudit : $emailAudit;
                 $q=$pdo->prepare('INSERT INTO review_log(submission_id,admin_id,old_status,new_status,note) VALUES(?,?,?,?,?)');
-                $q->execute([$id,$who['id'],$row['status'],$new,$historyNote]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1&view='.rawurlencode($view));
+                $q->execute([$id,$who['id'],$row['status'],$new,$historyNote]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1&view='.rawurlencode($new==='approved'||$new==='withdrawn'?($row['kind']==='club'?'clubs':'events'):$view));
             }
         }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log('NIWFF review error: '.$e->getMessage());$errors[]='Review could not be saved.';}
     }
@@ -70,6 +70,7 @@ $id=filter_var($_GET['id']??($_POST['id']??null),FILTER_VALIDATE_INT);
 if($id){
     $q=$pdo->prepare('SELECT * FROM submissions WHERE id=?');$q->execute([$id]);$row=$q->fetch();
     if(!$row||($maintenance&&($row['kind']!==($view==='clubs'?'club':'event')||!in_array($row['status'],['approved','withdrawn'],true)))){http_response_code(404);page('Not Found',$top);exit;}
+    if(!$maintenance&&in_array($row['status'],['approved','withdrawn'],true)) redirect('/admin/?view='.($row['kind']==='club'?'clubs':'events').'&id='.$id);
     $payload=json_decode($row['payload'],true,512,JSON_THROW_ON_ERROR);
     if($errors&&isset($_POST['action'])&&in_array($_POST['action'],['review','maintain'],true))[$payload,]=validate_payload($row['kind'],$_POST);
     $options='';foreach(($maintenance?['approved','withdrawn']:['pending','approved','rejected','changes_requested','withdrawn']) as $status)$options.='<option value="'.$status.'"'.($row['status']===$status?' selected':'').'>'.h(str_replace('_',' ',$status)).'</option>';
