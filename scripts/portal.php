@@ -112,7 +112,7 @@ function validate_club_schedule(array $source): array {
     }
     return [['venues'=>$venues,'sessions'=>$sessions],$errors];
 }
-function validate_payload(string $kind, array $source): array {
+function validate_payload(string $kind, array $source,bool $adminClub=false): array {
     $data=[]; $errors=[];$schedule=null;
     if($kind==='club'){
         [$schedule,$errors]=validate_club_schedule($source);
@@ -124,7 +124,7 @@ function validate_payload(string $kind, array $source): array {
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
         $raw=$source[$key] ?? '';
         $v=is_string($raw)?trim($raw):'';
-        if ($required && $v==='') $errors[]="$label is required.";
+        if ($required && (!$adminClub||$kind!=='club'||$key==='name') && $v==='') $errors[]="$label is required.";
         if (strlen($v)>$max) $errors[]="$label is too long.";
         if ($v!=='' && $type==='email' && !filter_var($v,FILTER_VALIDATE_EMAIL)) $errors[]="$label is invalid.";
         if ($v!=='' && $type==='url' && (!filter_var($v,FILTER_VALIDATE_URL) || !in_array(strtolower((string)parse_url($v,PHP_URL_SCHEME)),['http','https'],true))) $errors[]="$label must be an HTTP or HTTPS URL.";
@@ -199,17 +199,18 @@ function council_area_options(iterable $records=[],string $current=''): array {
 function known_council_areas(string $current=''): array {
     return council_area_options([],$current);
 }
-function council_area_field(array $options,string $current): string {
-    $out='<div class="field"><label for="area">Council Area *</label><select id="area" name="area" required><option value=""'.($current===''?' selected':'').'>Select council area</option>';
+function council_area_field(array $options,string $current,bool $required=true): string {
+    $out='<div class="field"><label for="area">Council Area'.($required?' *':'').'</label><select id="area" name="area"'.($required?' required':'').'><option value=""'.($current===''?' selected':'').'>Select council area</option>';
     foreach($options as $area) $out.='<option value="'.h($area).'"'.($current===$area?' selected':'').'>'.h($area).'</option>';
     return $out.'</select></div>';
 }
-function form_fields(string $kind,array $values=[]): string {
+function form_fields(string $kind,array $values=[],bool $adminClub=false): string {
     $out='';
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
+        if($adminClub&&$kind==='club'&&$key!=='name') $required=false;
         if($kind==='club'&&$key==='area'){
             $current=(string)($values[$key]??'');
-            $out.=council_area_field(known_council_areas($current),$current);
+            $out.=council_area_field(known_council_areas($current),$current,$required);
             continue;
         }
         if($kind==='event'&&$key==='venue') $out.=event_venue_selector(approved_event_venues(),(string)($values[$key]??''));
@@ -220,7 +221,7 @@ function form_fields(string $kind,array $values=[]): string {
         $out.='</div>';
         if($kind==='club'&&$key==='sessions'){
             $json=isset($values['schedule_data'])?json_encode($values['schedule_data'],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE):'';
-            $out.='<div id="schedule-editor" class="schedule-editor" hidden><input type="hidden" name="schedule_data" id="schedule-data" disabled value="'.h($json).'"></div>';
+            $out.='<div id="schedule-editor" class="schedule-editor" data-optional="'.($adminClub?'yes':'no').'" hidden><input type="hidden" name="schedule_data" id="schedule-data" disabled value="'.h($json).'"></div>';
         }
     }
     return $out;
