@@ -6,7 +6,7 @@ Deploy by Git pull into the current staging root. Requires PHP 8.1+ with PDO MyS
 
 ## Database provisioning
 
-1. In cPanel **MySQL Databases**, create a dedicated NIWFF staging database and a dedicated database user. Assign only the privileges needed for this database (SELECT, INSERT, UPDATE and schema creation for initial import). Do not reuse the HWFC database or account.
+1. In cPanel **MySQL Databases**, create a dedicated NIWFF staging database and a dedicated database user. Assign only the privileges needed for this database (SELECT, INSERT, UPDATE, DELETE and schema creation for initial import). Do not reuse the HWFC database or account.
 2. Import `scripts/schema.sql` via phpMyAdmin or the MySQL CLI. Example (replace the database/user names with the actual cPanel-prefixed names):
    ```bash
    cd ~/public_html/stagingniwf.hillsboroughwalkingfootball.com
@@ -36,7 +36,7 @@ Deploy by Git pull into the current staging root. Requires PHP 8.1+ with PDO MyS
 - Admin dashboard supports edits and decisions (pending, approved, rejected, changes requested, withdrawn), records the administrator and decision history, and allows withdrawal of published records.
 - The public endpoint `/api/public.php` emits only approved records and allow-listed public fields, not private contact details, review notes or administrator information.
 - Approved events are shown in the calendar and automatically move to Past Events when their end date has passed in UK time. Approved clubs are added to the existing directory; a legacy listing with the same name is suppressed while the approved record exists.
-- Admin notifications are optional and disabled until email settings are filled in; the dashboard queue is always the authoritative source. Requests for changes are recorded but not automatically emailed to submitters.
+- Admin notifications are optional and disabled until email settings are filled in; the dashboard queue is always the authoritative source. Changes Requested sends the original submitter a secure amendment link when outbound email and site_base_url are configured.
 - Initial implementation stores URLs for posters instead of uploads. Automatic Facebook Event creation, formal affiliation, club accounts/self-service edits, duplicate reconciliation and secure media uploads are separate increments.
 
 ## Acceptance test on staging before inviting clubs
@@ -52,3 +52,15 @@ Use fictitious test information and an address controlled by the tester.
 7. Test a database backup and restore, configure retention and privacy notices, define admin access revocation and amend/resubmit handling, and confirm notification email delivery if enabled.
 
 Do not use real club representative personal information on staging until the federation approves privacy, retention, security and access arrangements. The site remains noindex, which is not an access control. Protect staging with cPanel authentication if appropriate. No existing NIWFF DNS changes are needed.
+
+## Upgrade an existing staging database
+
+Back up the database first. Switch the staging checkout to feature/admin-submission-workflows and pull. Run the additive migration (does not replace existing submissions):
+
+```bash
+mysql -u YOUR_DB_USER -p YOUR_DB_NAME < scripts/migrateAmendments.sql
+```
+
+Update the existing private config (do not overwrite credentials): set site_base_url to the exact HTTPS origin, amendment_days to 14 if desired, and verify from_email/admin_email. Grant DELETE on submission_amendments so tokens can be revoked. Restrict access to web server logs, which may contain the original bearer URL. The migration is required before admin review/maintenance will operate.
+
+Additional acceptance tests: request changes on a test club and event, verify the email excludes internal notes, open the link in a different browser, confirm pre-filled values and same reference after resubmission, confirm status pending and previous version visible. Try the used link, an expired link, a reissued link, and a token after approval; all must refuse access. Verify concurrent submissions cannot overwrite each other, and no amended records appear until approved. Confirm a new club can add multiple locations, reuse them for sessions, reject invalid time order/location, and retain existing free-text records without forced conversion. Test approved and historical club detail layouts on desktop and mobile. Verify club/event maintenance does not generate review email and that withdrawal removes the approved listing.
