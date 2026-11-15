@@ -143,3 +143,5 @@ Status: initial staging implementation committed; database provisioning, end-to-
 - Approved and historical club detail pages shall use a consistent two-column layout (stacked on mobile), with historical warnings retained only where appropriate.
 
 Status: implemented on the admin development branch; database migration, outbound email and browser acceptance tests required before production.
+
+- Create an Event, event amendment and Event Maintenance forms shall offer an alphabetically sorted, deduplicated venue dropdown populated from approved structured club locations and approved event venues. Selecting a venue fills the editable name/address field. Unknown venues must remain valid; approved new event venues become available for subsequent events. Pending, rejected, withdrawn and ambiguous legacy free-text club locations shall not be automatically added. Existing event locations are preserved even if no longer in the dropdown. Manual entry remains available without JavaScript.
