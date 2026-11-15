@@ -51,7 +51,7 @@ $who=admin();
 if (!$who){
     page('Administrator Sign In',errors_html($errors).'<form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="login"><div class="field"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required></div><div class="field"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password" required></div><button class="btn btn-dark">Sign in</button></form>');exit;
 }
-$top='<div class="button-row"><a class="btn btn-outline" href="/admin/?view=new">New Submissions</a><a class="btn btn-outline" href="/admin/?view=old_club">Old Clubs</a><a class="btn btn-outline" href="/admin/?view=old_event">Old Events</a><form method="post"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="logout"><button class="btn btn-outline">Sign out</button></form></div><p>Signed in as '.h($who['username']).'</p>';
+$top='<div class="button-row"><a class="btn btn-outline" href="/admin/?view=new">New Submissions</a><a class="btn btn-outline" href="/admin/?view=old_club">Previous Clubs Requests</a><a class="btn btn-outline" href="/admin/?view=old_event">Previous Events Requests</a><form method="post"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="logout"><button class="btn btn-outline">Sign out</button></form></div><p>Signed in as '.h($who['username']).'</p>';
 $id=filter_var($_GET['id']??($_POST['id']??null),FILTER_VALIDATE_INT);
 if($id){
     $q=$pdo->prepare('SELECT * FROM submissions WHERE id=?');$q->execute([$id]);$row=$q->fetch();
