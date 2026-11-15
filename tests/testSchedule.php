@@ -67,3 +67,13 @@ $publicForm=form_fields('club',$minimal);
 check(substr_count($adminForm,' required')===1&&substr_count($publicForm,' required')>=7,'Admin and public form required attributes must differ');
 check(str_contains($adminForm,'data-optional="yes"')&&str_contains($publicForm,'data-optional="no"'),'Guided entry must know whether administrator is editing');
 echo "Admin club draft validation tests passed.".PHP_EOL;
+
+check(normalize_council_area('Ards and North Down')==='Ards & North Down','Council and spelling must be standardised');
+check(normalize_council_area('  ARMAGH, Banbridge and Craigavon ')==='Armagh, Banbridge & Craigavon','Council case and spacing must be standardised');
+check(count(council_area_options([],'Lisburn and Castlereagh'))===11,'Historical spelling must not create duplicate options');
+check(str_contains(council_area_field(council_area_options(),'Lisburn and Castlereagh'),'value="Lisburn &amp; Castlereagh" selected'),'Historical spelling must select canonical option');
+[$normalized,$errors]=validate_payload('club',['name'=>'Example','area'=>'Belfast'],true);
+check(!$errors&&$normalized['area']==='Belfast','Single-word council must remain unchanged');
+[$normalized,$errors]=validate_payload('club',['name'=>'Example','area'=>'Newry, Mourne and Down'],true);
+check(!$errors&&$normalized['area']==='Newry, Mourne & Down','Saved council must use ampersand');
+echo "Council normalisation tests passed.".PHP_EOL;
