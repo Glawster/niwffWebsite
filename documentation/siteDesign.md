@@ -1,0 +1,137 @@
+# NIWFF website design
+
+## Purpose and architecture
+
+The NIWFF website is the federation's authoritative information and publication platform. It serves prospective players, affiliated and prospective clubs, international squads, event organisers and the website administration team. Social media complements the website; the approved NIWFF Facebook Group is https://www.facebook.com/groups/602931127880903/ . The Irish FA website is https://www.irishfa.com/ . The general contact address is info@niwalkingfootball.com, displayed as a direct email link on all footers and Contact. Mailbox provisioning and delivery must be verified before production. External federation links appear only under Useful Links on Resources.
+
+The current implementation combines HTML/CSS/JavaScript public pages with PHP 8.1+ and PDO MySQL/MariaDB submission, review and publication services. The Git checkout remains the cPanel document root, with Apache denying access to repository metadata, migration archives, scripts and project documentation. Database configuration and credentials live outside the web root. No separate build or copy operation is required for normal deployment.
+
+## Information architecture
+
+| Page | Purpose |
+| --- | --- |
+| Home | Introduction, find a club, events, representative teams, current news |
+| Find a Club | Searchable club directory, club profiles, Register My Club |
+| Events | Forthcoming monthly calendar, event details, Create an Event, Past Events |
+| International Teams | Age-group squad pages, current squad and management, fixtures, results, historical reports |
+| News | News and match reports |
+| Photos | Photo collections by event and year |
+| Resources | Rules and guidance, Useful Links (Irish FA, walking football, Facebook Group, current live website during staging) |
+| About | Federation purpose, governance, policies |
+| Contact | Federation general enquiries email |
+| Administration | Authenticated review queue, decisions, audit history |
+
+Historical collections use the same rolling current year plus four previous calendar years and OLDER tabs, e.g. 2026 | 2025 | 2024 | 2023 | 2022 | OLDER. They roll forward on 1 January UK time. Undated records remain separately identified. Approved events move to history after their end date.
+
+## Roles and permissions
+
+| Role | Permissions |
+| --- | --- |
+| Public visitor | Browse approved public records; view clearly labelled historical content; submit event or club information |
+| Club representative | Submit club registration or event details; provide private contact for clarification |
+| Website administrator | Sign in, review submissions, edit public fields, approve, reject, request changes, withdraw, inspect decision history |
+| Hosting/database operator | Provision database, manage credentials and named admin accounts, maintain backups and hosting security |
+
+A public submission is not proof of club identity, authority to represent a club, or formal federation affiliation. Administrators must verify eligibility and legitimacy before approval. Club accounts, identity verification and self-service revisions are future enhancements.
+
+## Shared approval lifecycle
+
+```mermaid
+flowchart TD
+  A[Public submission] --> B[Validate fields and record pending]
+  B --> C[Admin review queue]
+  C --> D{Decision}
+  D -->|Approve| E[Publish approved public fields]
+  D -->|Reject| F[Rejected; not published]
+  D -->|Request changes| G[Changes requested; not published]
+  G --> C
+  E -->|Withdraw| H[Withdrawn; remove from public feed]
+  E -->|Edit and approve| E
+```
+
+Every new submission starts pending. The website displays a reference number on successful submission. Administrator decisions are explicit, authenticated and audit logged. Only approved records with a publication timestamp enter the public feed. Rejected, pending, changes-requested and withdrawn records remain private. A withdrawn approved club may still have a separately labelled legacy archive entry until that legacy record is reconciled; it must not be presented as an approved listing.
+
+Current implementation permits administrators to revise the submitted public fields while making a decision. Internal notes remain private; a separate message to the submitter is emailed with a secure amendment link when changes are requested. The original submission is reopened, amended and returned to pending under the same reference. Review history and earlier public payloads are retained. Optional admin notification email requires verified sender and recipient settings; the queue remains authoritative.
+
+## Create an Event
+
+Entry point: Events page, Create an Event button; form route `/submit.php?kind=event`.
+
+### Input and presentation
+
+- Required: event title, organising club, event type, start date, venue/address, description, private representative name and email, acknowledgement of data use.
+- Optional: end date, start/end times, age groups/eligibility, fees/entry details, registration/information URL and poster URL.
+- Dates are ISO calendar dates; end date cannot precede start date. Times are UK local time. URLs must use HTTP(S). Required fields, lengths and emails are validated on the server.
+- The form provides clear labels and validation messages, and does not imply that submission equals publication.
+
+After approval, the event appears in the forthcoming calendar and chronological event list, with date, organiser, location and expandable details. After the final event date, it moves automatically to Past Events and the relevant year tab. Historical listings do not imply verified results. Withdrawal removes the database-backed event from the feed.
+
+Future: authenticated club association, time-structured fixtures, uploaded posters, duplicate detection, amendment workflow, copy-ready Facebook Event details and optional supported Facebook integration.
+
+## Register My Club
+
+Entry point: Find a Club page, Register My Club button; form route `/submit.php?kind=club`.
+
+### Input and presentation
+
+- Required: club name, council area, town/location, venue/address, session schedule, age categories and session categories (men's/women's/mixed as relevant), description, private representative name and email, acknowledgement of data use.
+- Optional: membership/session costs, accessibility, website, social media URL and deliberately public club email.
+- Representative contact details are separate from the public club contact field.
+- Administrators verify registration details and suitability for directory listing. Approval publishes a searchable club card and detailed profile. Rejection or withdrawal removes the approved record. Website registration is separate from formal NIWFF affiliation unless the federation explicitly decides otherwise.
+- Legacy club listings are labelled unverified; an approved record with a matching normalised name suppresses the legacy listing while approved. Duplicate reconciliation and robust identity matching remain outstanding.
+
+Guided venue and session entry supports multiple named venues with addresses and weekly sessions referencing those locations. Each session has a weekday, 24-hour start/end times and optional men/women/mixed category. Server validation rejects invalid locations and non-increasing times. The existing free-text venue and schedule fields remain supported; users can explicitly convert old records. Published summaries are generated from the structured payload. Future: club logos and secure uploads, club accounts, approval of subsequent published-record changes, scheduled confirmation and separate affiliation management.
+
+## Administration screen
+
+Route `/admin/`. Named admin accounts are created by a hosting operator through the CLI; passwords are hashed, not stored in plaintext. The dashboard has three primary functions: Submission Review (active and historical submissions), Club Maintenance (approved/withdrawn clubs) and Event Maintenance (approved/withdrawn events). Review screens show private representative contacts, editable public fields, decision selector, separate message to submitter and internal note, decision history and previous public payload comparisons. Maintenance edits publish immediately if approved, are audit logged and do not send submission review emails. Approved and legacy club profiles share a responsive two-column layout with playing information on the left and verification, location and public contact links on the right. The current dashboard lists the latest 500 submissions; paging, filtering and search are future improvements.
+
+| State | Publicly visible? | Meaning |
+| --- | --- | --- |
+| pending | No | Awaiting review |
+| changes_requested | No | Clarification/amendment needed |
+| rejected | No | Not accepted |
+| approved | Yes | Reviewed and published |
+| withdrawn | No | Previously accepted record removed from public feed |
+
+## Database and publication contract
+
+| Table | Responsibilities |
+| --- | --- |
+| admins | Unique username, password hash, active status |
+| submissions | Kind, JSON form payload, private contact name/email, status, reviewer note, timestamps, reviewer reference |
+| review_log | Submission/admin references, old/new status, note and decision timestamp |
+| submission_amendments | One active hashed, expiring amendment token and requested-change message per submission |
+| submission_revisions | Prior public payload snapshots and actor/timestamp for comparison |
+
+`submissions.reviewed_by` references `admins.id`; review log records reference both submission and administrator. Admin review updates and audit entries are transactional. No personal details, internal notes or login data are included in the public API.
+
+`/api/public.php` returns JSON with separate clubs and events collections, filtered to approved records and allow-listed public fields. Existing JavaScript public pages load this feed. The initial archive migration data remains separate and unverified. The API does not publish draft submissions.
+
+Database-backed approval is the source of truth for new registrations and events. The initial JSON payload design simplifies staging; normalised club, venue, session, event, media and revision tables should be evaluated as the feature set expands. Retention, audit integrity, backup and deletion processes require federation agreement.
+
+## Security, privacy and operation
+
+Implemented controls include prepared statements, server-side validation, escaped output, CSRF tokens, named admin accounts, password hashing, secure/HttpOnly/SameSite session cookies, session expiry, basic submission throttling and a honeypot. Configuration resides at ~/niwff-private/config.php, outside the document root. Staging uses HTTPS and noindex; noindex is not access control.
+
+Before inviting real clubs: verify Apache restrictions, establish privacy notices and retention/deletion policy, add robust server-side rate limiting (the initial session-based controls are insufficient for distributed abuse), review authorisation and public field exposure, test duplicate submissions and simultaneous reviews, verify backups/restore, configure admin access revocation and notification delivery, and use test data for end-to-end acceptance. Secure media uploads must be validated and isolated before enabling.
+
+## Implementation status and acceptance
+
+The forms, database schema, authenticated review and maintenance screens, secure amendment workflow, guided club session entry, publication feed, calendar and directory integration are committed to the admin-submission-workflows branch. Database provisioning and end-to-end PHP/MySQL/browser testing on clannEolas remain outstanding. Do not treat the workflow as production-ready.
+
+Acceptance: pending submissions are persisted but absent from public views; admin approval publishes the correct record; rejected/withdrawn records are absent from the approved feed; private contacts and notes never appear in public responses; completed events enter the correct archive year; invalid data and unauthorised reviews are refused; administrators can inspect decision history.
+
+See [database workflow setup and acceptance checklist](databaseWorkflows.md), [staging deployment](stagingDeployment.md), [content migration model](contentMigrationModel.md) and [requirements](../REQUIREMENTS.md).
+
+## Website version
+
+The authoritative version is the CSS custom property `--siteVersion` in root-level `version.css`, matching the HWFC approach. The shared `assets/site.css` imports it and renders “Website version …” at the foot of all public pages and PHP submission/administration screens. The initial staging development version is 0.1a1. Update the single source for each distinct shared development build; do not reuse a published version. Release numbering follows the shared release policy and project-specific instructions. Git deployment does not require a separate version-generation step.
+
+## Amendment workflow
+
+Changes Requested requires a public-facing explanation distinct from the internal administrator note. A cryptographically random, single-use bearer link is emailed only to the original private representative address. The database stores its SHA-256 hash, not the raw token. The link is valid only while the record is awaiting changes, expires after a configurable 14 days by default, and is replaced when an administrator saves Changes Requested again. The token is exchanged for a session and removed from the browser URL. The amendment form pre-populates public fields; original representative contact details are read-only to preserve the verified return route. A successful resubmission locks the original record, saves a prior payload snapshot, changes status to pending, consumes the token, and notifies the admin after committing. No duplicate submission is created. Previous versions are compared with current public fields in admin. Email delivery, expired and reused links, simultaneous submissions and privacy controls require staging acceptance. Restrict access to web logs containing original link URLs.
+
+## Reusable event venues
+
+The shared event form queries approved, published club and event payloads for location options. Structured club venues supply their name and address individually; approved event venues supply their saved public venue text. Options are deduplicated case-insensitively and sorted alphabetically. Ambiguous free-text club venue lists are not split automatically. Selecting a known location fills the existing editable venue/address field; Other / new venue permits manual entry and does not require a separate registration. Once an event containing a new venue is approved, that venue appears in subsequent selectors. The same component serves event creation, amendment, review and maintenance; without JavaScript the normal venue field remains usable. No new database table or migration is required; events retain a snapshot of the selected venue text so later club edits do not silently change published events.

@@ -1,3 +1,5 @@
+@import url("/version.css");
+
 /* NIWFF staging site: accessible, responsive, dependency-free styles */
 :root{
   --ink:#152d38;--muted:#5c707a;--navy:#0c2939;--deep:#082631;
@@ -138,3 +140,40 @@ h3{font-size:1.2rem}
 .calendar-day.today{border:2px solid var(--green);background:#e6f4e9;color:#174c39}
 .calendar-day small{display:block;font-size:.7rem;color:var(--green);margin-top:6px}
 @media(max-width:600px){.year-tabs button{flex:1 0 28%;min-width:0;padding:10px 5px}.calendar{padding:12px}.calendar-day{min-height:45px;padding:4px;font-size:.85rem}.calendar-grid{gap:2px}}
+
+/* Database-backed submission and administration pages */
+.portal-form{max-width:850px;margin:24px 0;display:grid;gap:18px}.portal-form .field{min-width:0}.portal-form textarea{width:100%;padding:12px;border:1px solid #a9c3c2;border-radius:8px;font:inherit;color:var(--ink);resize:vertical}.portal-form h2{font-size:1.4rem;margin-top:14px}.portal-form label{font-weight:650}.table-scroll{overflow-x:auto}.review-table{width:100%;border-collapse:collapse;text-align:left}.review-table th,.review-table td{padding:12px;border-bottom:1px solid var(--line)}.portal-form button{justify-self:start}.button-row{margin-bottom:18px}
+
+/* Shared website version, matching the HWFC convention. */
+.footer-bottom::after,.portal-version::after{content:"Website version " var(--siteVersion);display:block;text-align:right;font-size:.82rem;margin-top:12px}
+.portal-version{color:var(--muted);padding-top:16px;border-top:1px solid var(--line)}
+@media(max-width:850px){.footer-bottom::after,.portal-version::after{text-align:left}}
+
+/* Guided club schedule: explicit two-column cards, with stacked mobile fields. */
+.schedule-editor{display:grid;gap:16px;min-width:0}
+.schedule-toolbar.button-row{margin:0}
+.schedule-body{display:grid;gap:16px;min-width:0}
+.schedule-body h2{margin:12px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.schedule-body>p{margin:0;color:var(--muted);font-size:.95rem}
+.schedule-list{display:grid;gap:16px;min-width:0}
+.schedule-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 20px;min-width:0;margin:0;padding:20px;background:#f7faf9;border:1px solid #bfd2d2;border-radius:12px}
+.schedule-row legend{padding:0 8px;color:var(--navy);font-weight:750;font-size:1rem}
+.schedule-row .schedule-field{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:.9rem;font-weight:700}
+.schedule-row .schedule-field input,.schedule-row .schedule-field select{display:block;width:100%;min-width:0;min-height:46px;padding:11px 13px;border:1px solid #a9c3c2;border-radius:8px;background:white;color:var(--ink);font:inherit;font-weight:400}
+.schedule-session .schedule-field:nth-of-type(5){grid-column:1/-1}
+.schedule-remove{grid-column:1/-1;justify-self:end!important;min-height:38px;padding:7px 12px;font-size:.85rem}
+.schedule-body>.btn{justify-self:start}
+.schedule-body details{padding:12px 16px;border:1px solid var(--line);border-radius:8px;background:var(--sky)}
+.schedule-body details summary{cursor:pointer;font-weight:650}
+.schedule-body details p{white-space:pre-wrap}
+.club-detail-text{white-space:pre-line}
+@media(max-width:600px){
+ .portal-form.panel{padding:18px}
+ .schedule-row{grid-template-columns:minmax(0,1fr);padding:14px;gap:12px}
+ .schedule-remove{justify-self:start!important}
+}
+
+.event-venue-picker{padding:16px;background:#f7faf9;border:1px solid #bfd2d2;border-radius:10px}
+.event-venue-picker p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+
+.footer-links a,.portal-version a{overflow-wrap:anywhere}

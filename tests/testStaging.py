@@ -34,8 +34,14 @@ class StagingTests(unittest.TestCase):
                 self.assertIn('id="site-nav"', html, route)
                 self.assertIn('id="app"', html, route)
                 self.assertIn("noindex,nofollow", html, route)
+                self.assertIn('href="mailto:info@niwalkingfootball.com"', html, route)
+                self.assertIn("Contact us at info@niwalkingfootball.com", html, route)
+                self.assertNotIn("Current live website", html, route)
+                self.assertNotIn("facebook.com", html, route)
+                self.assertNotIn("irishfa.com", html, route)
             self.assertTrue((out / "assets/site.js").is_file())
             self.assertTrue((out / "assets/site.css").is_file())
+            self.assertTrue((out / "version.css").is_file())
             self.assertTrue((out / "player-profiles/index.html").is_file())
             self.assertFalse((out / "data").exists(), "Never deploy raw data archive")
             self.assertFalse((out / "REQUIREMENTS.md").exists())
@@ -51,6 +57,17 @@ class StagingTests(unittest.TestCase):
         self.assertIn('X-Robots-Tag', rules)
         self.assertIn('FilesMatch', rules)
 
+    def test_website_version(self):
+        import re
+        version = (ROOT / "version.css").read_text(encoding="utf-8")
+        self.assertRegex(version, r'--siteVersion:\s*"\d+\.\d+(?:\.\d+)?(?:a\d+)?";')
+        css = (ROOT / "assets/site.css").read_text(encoding="utf-8")
+        self.assertIn('@import url("/version.css");', css)
+        self.assertIn('content:"Website version " var(--siteVersion)', css)
+        self.assertIn(".footer-bottom::after", css)
+        self.assertIn(".portal-version::after", css)
+        self.assertIn('class="portal-version"', (ROOT / "scripts/portal.php").read_text(encoding="utf-8"))
+
     def test_archive_and_links(self):
         js = (ROOT / "assets/site.js").read_text(encoding="utf-8")
         self.assertIn("length:5", js)
@@ -59,7 +76,16 @@ class StagingTests(unittest.TestCase):
         self.assertIn("Past Events", js)
         self.assertIn("602931127880903", js)
         self.assertIn("info@niwalkingfootball.com", js)
-        self.assertIn("EMAIL_ACTIVE=false", js)
+        self.assertNotIn("EMAIL_ACTIVE", js)
+        resources = js.split("function resources(){", 1)[1].split("function about(){", 1)[0]
+        self.assertIn("Useful Links", resources)
+        self.assertIn("LINKS.ifa", resources)
+        self.assertIn("LINKS.walking", resources)
+        self.assertIn("LINKS.facebook", resources)
+        self.assertNotIn("LINKS.facebook", js.replace(resources, ""))
+        self.assertNotIn("LINKS.ifa", js.replace(resources, ""))
+        self.assertNotIn("LINKS.walking", js.replace(resources, ""))
+        self.assertIn('href="mailto:info@niwalkingfootball.com"', (ROOT / "scripts/portal.php").read_text(encoding="utf-8"))
         self.assertIn('role="tab"', js)
         self.assertTrue((ROOT / "gallery/index.html").is_file())
 

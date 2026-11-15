@@ -4,6 +4,8 @@ NIWFF website redevelopment project. The existing public website remains at http
 
 ## Documentation
 
+- [Website design and approval workflows](documentation/siteDesign.md)
+
 - [Staging build and deployment instructions](documentation/stagingDeployment.md)
 - [Legacy-site content migration model](documentation/contentMigrationModel.md)
 - [Legacy-site review and outstanding decisions](project/reviews/2026-11-06-legacySiteReview.md)
@@ -53,3 +55,11 @@ A tracked root `.htaccess` prevents HTTP access to `.git`, legacy `data/` (inclu
 See [staging deployment instructions](documentation/stagingDeployment.md) for cloning/moving the repo into the web root, DNS/SSL checks and the necessary 403 tests. The optional static package builder and CI remain available for separate archived artifacts but are not part of normal deployment.
 
 The replacement has **not** been deployed to a server. Do not change the existing DNS/hosting until new content, review workflow, accessibility, redirects and rollback are verified.
+
+## Database-backed submissions (staging)
+
+The initial PHP/MySQL workflow adds Create an Event, Register My Club and an authenticated administration review queue. The existing website remains the Git checkout document root. See [database setup and acceptance tests](documentation/databaseWorkflows.md) before enabling the forms. No database credentials or user accounts are shipped in Git.
+
+## Website version
+
+The current website version is defined in [version.css](version.css) and displayed in the shared footer, following HWFC. Update this single source for each shared development build or release; see [site design](documentation/siteDesign.md).
