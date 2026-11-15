@@ -46,3 +46,24 @@ check(count($historical)===12&&in_array('Existing historical area',$historical,t
 check(!in_array('Unverified council',$historical,true),'Non-standard areas must not enter the shared list');
 check(str_contains(council_area_field($areas,'Belfast'),'value="Belfast" selected'),'Council selection should be retained');
 echo "Council area tests passed.".PHP_EOL;
+
+$minimal=['name'=>'Partially documented club'];
+[, $publicErrors]=validate_payload('club',$minimal);
+check(count($publicErrors)>=6,'Public registration must retain mandatory club fields');
+[$draft,$adminErrors]=validate_payload('club',$minimal,true);
+check(!$adminErrors&&$draft['area']===''&&$draft['sessions']==='','Administrator should be able to save incomplete club');
+[, $adminErrors]=validate_payload('club',[],true);
+check((bool)$adminErrors,'Club name remains mandatory for administrators');
+$partial=['venues'=>[['name'=>'Known venue','address'=>'']],'sessions'=>[['day'=>'Friday','venue'=>0,'start'=>'10:00','end'=>'','category'=>'']]];
+[$draft,$adminErrors]=validate_payload('club',$minimal+['schedule_data'=>json_encode($partial)],true);
+check(!$adminErrors&&$draft['schedule_data']===$partial&&str_contains($draft['sessions'],'finish to be confirmed'),'Incomplete guided schedule should save in admin');
+[, $publicErrors]=validate_payload('club',$minimal+['schedule_data'=>json_encode($partial)]);
+check((bool)$publicErrors,'Public guided schedule must remain complete');
+$partial['sessions'][0]['end']='09:00';
+[, $adminErrors]=validate_payload('club',$minimal+['schedule_data'=>json_encode($partial)],true);
+check((bool)$adminErrors,'Admin should still reject invalid time order');
+$adminForm=form_fields('club',$minimal,true);
+$publicForm=form_fields('club',$minimal);
+check(substr_count($adminForm,' required')===1&&substr_count($publicForm,' required')>=7,'Admin and public form required attributes must differ');
+check(str_contains($adminForm,'data-optional="yes"')&&str_contains($publicForm,'data-optional="no"'),'Guided entry must know whether administrator is editing');
+echo "Admin club draft validation tests passed.".PHP_EOL;
