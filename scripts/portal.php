@@ -87,8 +87,40 @@ function valid_date(string $s): bool {
     $d=DateTimeImmutable::createFromFormat('!Y-m-d',$s);
     return $d !== false && $d->format('Y-m-d') === $s;
 }
+function validate_club_schedule(array $source): array {
+    $raw=$source['schedule_data']??'';
+    if($raw==='') return [null,[]];
+    if(!is_string($raw)||strlen($raw)>30000) return [null,['Invalid structured schedule.']];
+    $input=json_decode($raw,true);
+    if(!is_array($input)||!isset($input['venues'],$input['sessions'])||!is_array($input['venues'])||!is_array($input['sessions'])||count($input['venues'])<1||count($input['venues'])>10||count($input['sessions'])<1||count($input['sessions'])>30) return [null,['Enter 1–10 venues and 1–30 sessions.']];
+    $venues=[];$sessions=[];$errors=[];
+    $days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    foreach(array_values($input['venues']) as $i=>$v){
+        $name=is_array($v)&&is_string($v['name']??null)?trim($v['name']):'';
+        $address=is_array($v)&&is_string($v['address']??null)?trim($v['address']):'';
+        if($name===''||strlen($name)>160||$address===''||strlen($address)>300) $errors[]='Venue '.($i+1).' needs a name and address within the field limits.';
+        $venues[]=['name'=>$name,'address'=>$address];
+    }
+    foreach(array_values($input['sessions']) as $i=>$v){
+        $day=is_array($v)&&is_string($v['day']??null)?$v['day']:'';
+        $venue=is_array($v)&&is_int($v['venue']??null)?$v['venue']:-1;
+        $start=is_array($v)&&is_string($v['start']??null)?$v['start']:'';
+        $end=is_array($v)&&is_string($v['end']??null)?$v['end']:'';
+        $category=is_array($v)&&is_string($v['category']??null)?$v['category']:'';
+        if(!in_array($day,$days,true)||!isset($venues[$venue])||!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$start)||!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/D',$end)||$end<=$start||!in_array($category,['','Men','Women','Mixed'],true)) $errors[]='Session '.($i+1).' needs a valid day, location, start and later finish time.';
+        $sessions[]=['day'=>$day,'venue'=>$venue,'start'=>$start,'end'=>$end,'category'=>$category];
+    }
+    return [['venues'=>$venues,'sessions'=>$sessions],$errors];
+}
 function validate_payload(string $kind, array $source): array {
-    $data=[]; $errors=[];
+    $data=[]; $errors=[];$schedule=null;
+    if($kind==='club'){
+        [$schedule,$errors]=validate_club_schedule($source);
+        if($schedule!==null&&!$errors){
+            $source['venue']=implode("\n",array_map(fn($v)=>$v['name'].' — '.$v['address'],$schedule['venues']));
+            $source['sessions']=implode("\n",array_map(fn($v)=>$v['day'].' '.$v['start'].'–'.$v['end'].' at '.$schedule['venues'][$v['venue']]['name'].($v['category']!==''?' ('.$v['category'].')':''),$schedule['sessions']));
+        }
+    }
     foreach(fields($kind) as $key=>[$label,$type,$required,$max]){
         $raw=$source[$key] ?? '';
         $v=is_string($raw)?trim($raw):'';
@@ -100,6 +132,7 @@ function validate_payload(string $kind, array $source): array {
         $data[$key]=$v;
     }
     if ($kind==='event' && $data['endDate']!=='' && $data['endDate']<$data['startDate']) $errors[]='End date must not precede start date.';
+    if($schedule!==null) $data['schedule_data']=$schedule;
     return [$data,$errors];
 }
 function form_fields(string $kind,array $values=[]): string {
@@ -110,6 +143,10 @@ function form_fields(string $kind,array $values=[]): string {
         $out.='<div class="field"><label for="'.h($key).'">'.h($label).($required?' *':'').'</label>';
         $out.=$type==='textarea'?'<textarea'.$attr.' rows="4">'.$v.'</textarea>':'<input type="'.h($type).'"'.$attr.' value="'.$v.'">';
         $out.='</div>';
+        if($kind==='club'&&$key==='sessions'){
+            $json=isset($values['schedule_data'])?json_encode($values['schedule_data'],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE):'';
+            $out.='<div id="schedule-editor" class="schedule-editor" hidden><input type="hidden" name="schedule_data" id="schedule-data" value="'.h($json).'"></div>';
+        }
     }
     return $out;
 }
@@ -118,7 +155,7 @@ function page(string $title,string $body): void {
     header('Cache-Control: no-store');
     header('Referrer-Policy: no-referrer');
     header("X-Robots-Tag: noindex, nofollow");
-    echo '<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'.h($title).' | NIWFF</title><link rel="stylesheet" href="/assets/site.css"><header class="site-header"><div class="shell header-row"><a class="brand" href="/">NI Walking Football Federation</a><nav><a style="color:white" href="/competitions/">Events</a> · <a style="color:white" href="/find-a-club/">Find a Club</a></nav></div></header><main class="shell section"><h1>'.h($title).'</h1>'.$body.'<footer class="portal-version"></footer></main></html>';
+    echo '<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'.h($title).' | NIWFF</title><link rel="stylesheet" href="/assets/site.css"><script src="/assets/schedule.js" defer></script><header class="site-header"><div class="shell header-row"><a class="brand" href="/">NI Walking Football Federation</a><nav><a style="color:white" href="/competitions/">Events</a> · <a style="color:white" href="/find-a-club/">Find a Club</a></nav></div></header><main class="shell section"><h1>'.h($title).'</h1>'.$body.'<footer class="portal-version"></footer></main></html>';
 }
 function errors_html(array $errors): string {
     return $errors?'<div class="notice" role="alert"><ul>'.implode('',array_map(fn($e)=>'<li>'.h($e).'</li>',$errors)).'</ul></div>':'';
