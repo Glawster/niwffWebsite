@@ -132,3 +132,14 @@ Status: initial staging UI implemented; approved upcoming events, full historica
 - Future increments: stronger shared rate limiting, duplicate/revision management and club self-service, automated amendment/resubmission correspondence, uploaded logo/poster storage, Facebook event preparation, retention policy and administration backup/restore tests.
 
 Status: initial staging implementation committed; database provisioning, end-to-end tests and approval before public submissions are outstanding.
+
+
+### Submission amendments and guided club schedules
+
+- The admin dashboard shall separate Submission Review, Club Maintenance and Event Maintenance. Approved club and event records become available in maintenance automatically; maintenance edits are audited and do not create a new submission.
+- Changes Requested shall require a message to the submitter separate from the private administrator note. Send a secure, expiring, single-use link to reopen the original form; default expiry 14 days, configurable. Reissuing a link invalidates the previous one. Approval, rejection, withdrawal or successful resubmission revokes any active link.
+- Resubmission shall retain the reference, return the status to pending, notify administrators, and preserve prior public field snapshots for comparison. Never publish amended data before approval. Keep original private representative contact data out of public views and immutable through amendment links.
+- Club registration and maintenance shall allow repeatable named venues/addresses and weekly session rows with day, venue selection, native start/end time controls and optional men/women/mixed category. The location selector shall reuse the entered venues. Validate references and time order server-side; retain compatibility with existing free-text records and provide a no-JavaScript fallback.
+- Approved and historical club detail pages shall use a consistent two-column layout (stacked on mobile), with historical warnings retained only where appropriate.
+
+Status: implemented on the admin development branch; database migration, outbound email and browser acceptance tests required before production.
