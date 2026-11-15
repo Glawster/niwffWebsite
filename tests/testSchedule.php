@@ -37,3 +37,9 @@ $event=['title'=>'Test event','club'=>'Example club','type'=>'Friendly','startDa
 [$data,$errors]=validate_payload('event',$event);
 check(!$errors&&$data['venue']===$event['venue'],'New venue must be accepted without catalogue membership');
 echo "Schedule and venue tests passed.".PHP_EOL;
+
+$areas=council_area_options([['payload'=>json_encode(['area'=>'Mid Ulster'])],['payload'=>json_encode(['area'=>'belfast'])]],'Existing historical area');
+check(in_array('Mid Ulster',$areas,true)&&in_array('Existing historical area',$areas,true),'Council options should include database and current values');
+check(!in_array('belfast',$areas,true),'Council names should be deduplicated');
+check(str_contains(council_area_field($areas,'Belfast'),'value="Belfast" selected'),'Council selection should be retained');
+echo "Council area tests passed.".PHP_EOL;
