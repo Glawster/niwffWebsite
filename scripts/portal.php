@@ -128,6 +128,27 @@ function notify_admin(int $id,string $kind): void {
     // Never include submitted personal data in notification email.
     @mail($c['admin_email'],'NIWFF submission awaiting review','A new '.$kind.' submission #'.$id.' is waiting in the NIWFF administration dashboard.','From: '.$c['from_email']);
 }
+function notify_submitter_review(array $submission,string $status,string $note): string {
+    $to = trim((string)($submission['contact_email'] ?? ''));
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return 'Email not sent (no valid contact email).';
+    if ($status === 'pending') return 'Email not sent (status returned to pending).';
+
+    $cfg = config();
+    $from = trim((string)($cfg['from_email'] ?? ''));
+    if (!filter_var($from, FILTER_VALIDATE_EMAIL)) return 'Email not sent (from_email not configured).';
+
+    $prettyStatus = ucwords(str_replace('_', ' ', $status));
+    $subject = 'NIWFF submission #'.((int)($submission['id'] ?? 0)).' review update';
+    $body = "Your NIWFF submission has been reviewed.\n"
+        ."Status: {$prettyStatus}\n\n"
+        .($note !== '' ? "Reviewer note:\n{$note}\n\n" : '')
+        ."You may submit an updated request if changes are needed.\n";
+    $headers = "From: {$from}\r\nReply-To: {$from}\r\nContent-Type: text/plain; charset=UTF-8";
+
+    return @mail($to, $subject, $body, $headers)
+        ? 'Email sent to '.$to.'.'
+        : 'Email failed to '.$to.'.';
+}
 function admin(): ?array {
     if (empty($_SESSION['admin_id'])) return null;
     $q=db()->prepare('SELECT id,username FROM admins WHERE id=? AND active=1');

@@ -39,8 +39,10 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
             else{
                 $q=$pdo->prepare("UPDATE submissions SET payload=?,status=?,reviewer_note=?,reviewed_by=?,published_at=CASE WHEN ?='approved' THEN COALESCE(published_at,UTC_TIMESTAMP()) ELSE NULL END WHERE id=?");
                 $q->execute([json_encode($payload,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE),$new,$note,$who['id'],$new,$id]);
+                $emailAudit=notify_submitter_review($row,$new,$note);
+                $historyNote=$note!=='' ? $note."\n".$emailAudit : $emailAudit;
                 $q=$pdo->prepare('INSERT INTO review_log(submission_id,admin_id,old_status,new_status,note) VALUES(?,?,?,?,?)');
-                $q->execute([$id,$who['id'],$row['status'],$new,$note]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1&view='.rawurlencode($view));
+                $q->execute([$id,$who['id'],$row['status'],$new,$historyNote]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1&view='.rawurlencode($view));
             }
         }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log('NIWFF review error: '.$e->getMessage());$errors[]='Review could not be saved.';}
     }
@@ -58,23 +60,26 @@ if($id){
     if($errors&&isset($_POST['action'])&&$_POST['action']==='review')[$payload,]=validate_payload($row['kind'],$_POST);
     $options='';foreach(['pending','approved','rejected','changes_requested','withdrawn'] as $status)$options.='<option value="'.$status.'"'.($row['status']===$status?' selected':'').'>'.h(str_replace('_',' ',$status)).'</option>';
     $history=$pdo->prepare('SELECT l.*,a.username FROM review_log l JOIN admins a ON a.id=l.admin_id WHERE submission_id=? ORDER BY l.id DESC');$history->execute([$id]);$log='';
-    foreach($history as $item)$log.='<li>'.h($item['created_at'].' UTC — '.$item['username'].': '.$item['old_status'].' → '.$item['new_status'].' — '.$item['note']).'</li>';
+    foreach($history as $item){
+        $historyNote=str_replace(["\r\n","\n","\r"],' | ',(string)$item['note']);
+        $log.='<li>'.h($item['created_at'].' UTC — '.$item['username'].': '.$item['old_status'].' → '.$item['new_status'].' — '.$historyNote).'</li>';
+    }
     page('Review #'.$id,$top.(isset($_GET['saved'])?'<p role="status">Review Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="review"><input type="hidden" name="id" value="'.$id.'"><input type="hidden" name="view" value="'.h($view).'">'.form_fields($row['kind'],$payload).'<div class="field"><label for="status">Review Decision</label><select id="status" name="status">'.$options.'</select></div><div class="field"><label for="note">Internal Review Note</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($row['reviewer_note']??'').'</textarea></div><button class="btn btn-dark">Save decision</button></form><h2>Review History</h2><ul>'.$log.'</ul>');exit;
 }
 if ($view==='old_club') {
-    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE kind='club' AND status<>'pending' ORDER BY id DESC LIMIT 500");
+    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE kind='club' AND status NOT IN ('pending','changes_requested') ORDER BY id DESC LIMIT 500");
     $listTitle='Club Submission History';
-    $listIntro='Showing older club submissions (non-pending statuses).';
+    $listIntro='Showing older club submissions (excluding pending and changes requested).';
     $empty='No older club submissions found.';
 } elseif ($view==='old_event') {
-    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE kind='event' AND status<>'pending' ORDER BY id DESC LIMIT 500");
+    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE kind='event' AND status NOT IN ('pending','changes_requested') ORDER BY id DESC LIMIT 500");
     $listTitle='Event Submission History';
-    $listIntro='Showing older event submissions (non-pending statuses).';
+    $listIntro='Showing older event submissions (excluding pending and changes requested).';
     $empty='No older event submissions found.';
 } else {
-    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE status='pending' ORDER BY id DESC LIMIT 500");
+    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE status IN ('pending','changes_requested') ORDER BY id DESC LIMIT 500");
     $listTitle='NIWFF Administration';
-    $listIntro='Showing new submissions only. Approved and older reviewed submissions are hidden by default.';
+    $listIntro='Showing active submissions only (new and changes requested). Approved and older reviewed submissions are hidden by default.';
     $empty='No new submissions at the moment.';
 }
 $rows='';foreach($list as $row){$p=json_decode($row['payload'],true);$rows.='<tr><td><a href="/admin/?id='.(int)$row['id'].'&view='.rawurlencode($view).'">#'.(int)$row['id'].' '.h($p['title']??$p['name']??'Submission').'</a></td><td>'.h($row['kind']).'</td><td>'.h($row['status']).'</td><td>'.h($row['created_at']).'</td></tr>';}
