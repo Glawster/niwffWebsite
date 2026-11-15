@@ -196,7 +196,7 @@ function about(){
 function contact(){
  title("Contact");
  return intro("Get in touch","Contact NIWFF","Questions about clubs, events, international teams or the federation?")+
- section('<div class="content-grid"><div class="panel"><h2>Contact the federation</h2><p>Contact us at <a href="mailto:'+LINKS.email+'">'+LINKS.email+'</a> for general enquiries.</p><div class="button-row"><a href="/find-a-club/" class="btn btn-outline">Explore clubs</a></div></div><aside class="panel"><h3>What can we help with?</h3><ul><li>Finding a local club</li><li>Federation events and competitions</li><li>International representative teams</li><li>Club affiliation and general information</li></ul></aside></div>');
+ section('<div class="content-grid"><div class="panel"><h2>Contact Us</h2><p>Contact us at <a href="mailto:'+LINKS.email+'">'+LINKS.email+'</a> for general enquiries.</p><div class="button-row"><a href="/find-a-club/" class="btn btn-outline">Explore clubs</a></div></div><aside class="panel"><h3>What can we help with?</h3><ul><li>Finding a local club</li><li>Federation events and competitions</li><li>International representative teams</li><li>Club affiliation and general information</li></ul></aside></div>');
 }
 function notFound(){title("Page not found");return intro("404","Page not found","The page you requested is unavailable.")+section('<p><a href="/" class="btn btn-dark">Return to homepage</a></p>');}
 function render(){
