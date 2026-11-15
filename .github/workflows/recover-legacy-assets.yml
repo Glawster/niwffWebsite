@@ -1,0 +1,34 @@
+name: Recover public NIWFF legacy images
+
+on:
+  push:
+    branches: [feature/legacy-site-recovery]
+    paths:
+      - '.github/workflows/recover-legacy-assets.yml'
+      - 'scripts/recoverLegacyAssets.py'
+      - 'data/legacySite/2026-11-06/assetManifest.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out recovery branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Recover only public legacy images
+        run: python3 scripts/recoverLegacyAssets.py
+        continue-on-error: true
+      - name: Commit archive and recovery report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/legacySite/2026-11-06/assets data/legacySite/2026-11-06/assetRecoveryReport.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Archive public NIWFF website visual assets"
+            git push
+          fi

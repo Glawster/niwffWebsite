@@ -1,0 +1,263 @@
+{
+  "capturedAt": "2026-11-06T11:52:52.049252+00:00",
+  "assets": [
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/a58c05c47a7bdb1edb5652112ab01c64.png",
+      "file": "assets/home/a58c05c47a7bdb1edb5652112ab01c64.png",
+      "status": "downloaded",
+      "size": 50535,
+      "sha256": "5b2e94208c488e836370ae48d5215dec7e33058dfc540fc2acb78ee39df4df7d"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/e409595577fb21485be3cd9344274647.jpg",
+      "file": "assets/home/e409595577fb21485be3cd9344274647.jpg",
+      "status": "downloaded",
+      "size": 5586,
+      "sha256": "5de115bb38c785589a1c87616333aba4a90ae5b77bbf600e19ca3d2f66a69697"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/984c1c5dc6edc8ae03443b8c6249dfc5.jpg",
+      "file": "assets/home/984c1c5dc6edc8ae03443b8c6249dfc5.jpg",
+      "status": "downloaded",
+      "size": 25210,
+      "sha256": "fe732e41b15e05e071a31de9e8f056c0289dd0408be08850f7d3e0eaba740e55"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/369c1e731f9de345af6c41507be0e770.jpg",
+      "file": "assets/home/369c1e731f9de345af6c41507be0e770.jpg",
+      "status": "downloaded",
+      "size": 90602,
+      "sha256": "8d63fffc1aae76347ce02a8f37e5cda950592d3e8eb5d314ade10815f468ab27"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/6d5d51b58737e7ad6c8c25552c183a19.jpg",
+      "file": "assets/home/6d5d51b58737e7ad6c8c25552c183a19.jpg",
+      "status": "downloaded",
+      "size": 57340,
+      "sha256": "79f2fa892545f0b43b1944577a1ee86c61f11592b1ccba95b88a0b71269586ad"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/9a7282240a906a639777e08313fceb9e.jpg",
+      "file": "assets/home/9a7282240a906a639777e08313fceb9e.jpg",
+      "status": "downloaded",
+      "size": 357058,
+      "sha256": "e8f2f1b44b7530cad5f74040efebf73bfb7fba642750b592e1e3f75aba2a572a"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/media/729e71b41ba79c6bfaa393cef0b66e43.jpg",
+      "file": "assets/home/729e71b41ba79c6bfaa393cef0b66e43.jpg",
+      "status": "downloaded",
+      "size": 67227,
+      "sha256": "74de676d26dca5cc3bcd1c2412a5a723722733140fa80fd0a860578ffbf1b856"
+    },
+    {
+      "url": "https://niwalkingfootball.com/_assets/scenes/b40d6a380e344704e200b0228da03006.png",
+      "file": "assets/home/b40d6a380e344704e200b0228da03006.png",
+      "status": "failed",
+      "reason": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://niwalkingfootball.com/latest-news/_assets/media/fa6d5ac6ea801280d58bf2aeaaa41063.jpg",
+      "file": "assets/latestNews/fa6d5ac6ea801280d58bf2aeaaa41063.jpg",
+      "status": "downloaded",
+      "size": 52370,
+      "sha256": "4a7ba7a87ff36ad764df29e1efd2b6757ed8183a09e54dd5ca9ea3fd5b73b02e"
+    },
+    {
+      "url": "https://niwalkingfootball.com/latest-news/_assets/media/2faa7b03233c08ac4518aff5ad6ec68d.jpg",
+      "file": "assets/latestNews/2faa7b03233c08ac4518aff5ad6ec68d.jpg",
+      "status": "downloaded",
+      "size": 102478,
+      "sha256": "c6c8a679e9019a7b3faabb385d2019adc346c92cb60b41430bd84d0f05d4765a"
+    },
+    {
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/0f320308921797a7a784db255c81381e.jpg",
+      "file": "assets/affiliatedClubs/0f320308921797a7a784db255c81381e.jpg",
+      "status": "downloaded",
+      "size": 109377,
+      "sha256": "ed722764dcaaf1311865cae6d9240e3a488fc7c1dbef5d63bc770e025f1664be"
+    },
+    {
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/f47c3482e4b391f0e372364d59ecc8d8.png",
+      "file": "assets/affiliatedClubs/f47c3482e4b391f0e372364d59ecc8d8.png",
+      "status": "downloaded",
+      "size": 396681,
+      "sha256": "21583a1a5cedce3ace20b8861b5beaf521f9758870d29326e194193b604e8c53"
+    },
+    {
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/f0aebda00069fba0967c217533865651.png",
+      "file": "assets/affiliatedClubs/f0aebda00069fba0967c217533865651.png",
+      "status": "downloaded",
+      "size": 161913,
+      "sha256": "66f710f733e02540a08684b1901c853a4fc09ccd22457b3ecf8d3d6c6ca0c411"
+    },
+    {
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/3244f46b4e7b3a34dedabc47f3e60c42.svg",
+      "file": "assets/affiliatedClubs/3244f46b4e7b3a34dedabc47f3e60c42.svg",
+      "status": "downloaded",
+      "size": 555,
+      "sha256": "54364b26328b996d4106c2aa0a1a927510799925a5065687b7c3ec20a1249fc0"
+    },
+    {
+      "url": "https://niwalkingfootball.com/affiliated-clubs/_assets/media/bb2d33a52ebf7af33b05f2f73b03170a.svg",
+      "file": "assets/affiliatedClubs/bb2d33a52ebf7af33b05f2f73b03170a.svg",
+      "status": "downloaded",
+      "size": 1092,
+      "sha256": "a92ba130843b09deeb88ab6c962337abc698301d00885e155f52a5c4ae5e8dc9"
+    },
+    {
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/a843c4e76a3bdb203dde0e41eb99844d.jpg",
+      "file": "assets/gallery/a843c4e76a3bdb203dde0e41eb99844d.jpg",
+      "status": "downloaded",
+      "size": 52529,
+      "sha256": "6183c1b22227dec357c3aa2cf441b56321d5632d0c862017dfdf092d8d99d2be"
+    },
+    {
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/478e301383bd874914763fdc518e40ae.jpg",
+      "file": "assets/gallery/478e301383bd874914763fdc518e40ae.jpg",
+      "status": "downloaded",
+      "size": 349757,
+      "sha256": "b5923f52dd898906335535decc77431b56991174daca1adbeeeb66e39cd06a20"
+    },
+    {
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/a484c13f32edd1719e7e2e833f8dfd78.jpg",
+      "file": "assets/gallery/a484c13f32edd1719e7e2e833f8dfd78.jpg",
+      "status": "downloaded",
+      "size": 102449,
+      "sha256": "bae9b6ccd00c951f448ebf8529717d62ca98e864784ee913de63765c0c1127f3"
+    },
+    {
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/8cdb8c88b18fd0784708bf3b29f74dc7.jpg",
+      "file": "assets/gallery/8cdb8c88b18fd0784708bf3b29f74dc7.jpg",
+      "status": "downloaded",
+      "size": 111753,
+      "sha256": "7ef3fb69984b82f0ced7a89f2745e5f622f2f80d63659f1c5ddda62affb622d5"
+    },
+    {
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/cafb948acdbadfb9e814423478d55c75.png",
+      "file": "assets/gallery/cafb948acdbadfb9e814423478d55c75.png",
+      "status": "downloaded",
+      "size": 324964,
+      "sha256": "d66d424d239aa12682df21d4b18096b5808e09ab881a03e5276d62743285b674"
+    },
+    {
+      "url": "https://niwalkingfootball.com/gallery/_assets/media/c577360eada739fed99f893cd7aeb351.png",
+      "file": "assets/gallery/c577360eada739fed99f893cd7aeb351.png",
+      "status": "downloaded",
+      "size": 500457,
+      "sha256": "0e5effb9a3014bf713f3450c3b8cf416144fc3c6266f77ea6bd3eb52f800db3b"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/440e9f0b0683c1f463a523d04f17829e.jpg",
+      "file": "assets/playerProfiles/440e9f0b0683c1f463a523d04f17829e.jpg",
+      "status": "downloaded",
+      "size": 76196,
+      "sha256": "562d5a9b5f2045883cba9ff5537d1a7f3328764345369f523069a6ba0d1cb91d"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/31219de0b45dbd0d313741b0e03db795.jpg",
+      "file": "assets/playerProfiles/31219de0b45dbd0d313741b0e03db795.jpg",
+      "status": "downloaded",
+      "size": 66342,
+      "sha256": "efd88743c88a9586b80cb93e3f53cb72119a9079a36299240c67b37b52fc9506"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/f8605baf377c423d93ff5d8b472901eb.jpg",
+      "file": "assets/playerProfiles/f8605baf377c423d93ff5d8b472901eb.jpg",
+      "status": "downloaded",
+      "size": 67710,
+      "sha256": "add1177d321b597e162a5e9c4a07e80603abdc44d26f3515a3b7d5db6be805e8"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/d8ddb2bb279f4ddc8b4f62ed395bbc67.jpg",
+      "file": "assets/playerProfiles/d8ddb2bb279f4ddc8b4f62ed395bbc67.jpg",
+      "status": "downloaded",
+      "size": 44156,
+      "sha256": "ff60f7d861be324491a5f32463f83a2b4ac7d24adf9d241da7bb48235ae0b3f9"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/11b8a10598eada6ae0bb089c7c94fd2d.jpg",
+      "file": "assets/playerProfiles/11b8a10598eada6ae0bb089c7c94fd2d.jpg",
+      "status": "downloaded",
+      "size": 82093,
+      "sha256": "97b706cae0f006abb34718ef80bb7a2c49a07888952f589c850e4a0567302fc2"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/440cde8cc1237c6d2e51ec4d743c1dd3.jpg",
+      "file": "assets/playerProfiles/440cde8cc1237c6d2e51ec4d743c1dd3.jpg",
+      "status": "downloaded",
+      "size": 87437,
+      "sha256": "99698654fda45f3ab871dc9952061d3e2b18dd424dec10a6118c1fc8fc8be254"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/85f6a14ff7e78901ae42f505e8e7d6b8.jpg",
+      "file": "assets/playerProfiles/85f6a14ff7e78901ae42f505e8e7d6b8.jpg",
+      "status": "downloaded",
+      "size": 47814,
+      "sha256": "715596703427e4aafd377a434771ab0f1043c34b7a7b7798271764cdaf4664f7"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/a7e54f522b76bcf5696743c0361c99f0.jpg",
+      "file": "assets/playerProfiles/a7e54f522b76bcf5696743c0361c99f0.jpg",
+      "status": "downloaded",
+      "size": 78836,
+      "sha256": "4b518594f660efc037b1f5538d16ed9bbd3d68d21f8bb21290c2395293d85291"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/1e285a59d18e791240a5ad029eefec03.jpg",
+      "file": "assets/playerProfiles/1e285a59d18e791240a5ad029eefec03.jpg",
+      "status": "downloaded",
+      "size": 56618,
+      "sha256": "5df15d64970422aa079fdb1732d3547638ea695354934eb1f7b9601516d5d839"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/ef2d80f87691e37933286a389254d008.jpg",
+      "file": "assets/playerProfiles/ef2d80f87691e37933286a389254d008.jpg",
+      "status": "downloaded",
+      "size": 75121,
+      "sha256": "f985a388c7f471c1d21b718397a24f5ef2d59707145de4500638c95be7f9d9e1"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/eb826f8d578f1dac38d7a46c11e23467.jpg",
+      "file": "assets/playerProfiles/eb826f8d578f1dac38d7a46c11e23467.jpg",
+      "status": "downloaded",
+      "size": 78314,
+      "sha256": "80369795f4c8f3752ea03526aca1a2c0cb00c7ab19bf5add9e639830e9021625"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/3916913cd2def7be0c7a44db3dc67f71.jpg",
+      "file": "assets/playerProfiles/3916913cd2def7be0c7a44db3dc67f71.jpg",
+      "status": "downloaded",
+      "size": 71476,
+      "sha256": "4c6ddbd403d3b1c10bced11b124c5b0c929900f35dc55bae2b0acfa9a36977e0"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/ad15bdbf0077d2e7a5703a8fc3c012d0.jpg",
+      "file": "assets/playerProfiles/ad15bdbf0077d2e7a5703a8fc3c012d0.jpg",
+      "status": "downloaded",
+      "size": 77047,
+      "sha256": "722f3ea9bb917ad1a9be50e4d9b1ca79e572d0fb5f83e85ad991e1d0150fb93d"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/8b4efbc52160257be081ac954264c97f.jpg",
+      "file": "assets/playerProfiles/8b4efbc52160257be081ac954264c97f.jpg",
+      "status": "downloaded",
+      "size": 67963,
+      "sha256": "acf67e5945a92f8d4c195b3b90ac9dd636d9f80eb535741dbe42180b603c6f7c"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/ad3182a1657c16ce505c2b9bd660a711.jpg",
+      "file": "assets/playerProfiles/ad3182a1657c16ce505c2b9bd660a711.jpg",
+      "status": "downloaded",
+      "size": 83004,
+      "sha256": "0ed7a4ce8541e00e06e527b19edae959a07c122d15f8c7368b88eea2d772ce0e"
+    },
+    {
+      "url": "https://niwalkingfootball.com/player-profiles/_assets/media/c785ff89f6fd3ce15bb03e0044533609.jpg",
+      "file": "assets/playerProfiles/c785ff89f6fd3ce15bb03e0044533609.jpg",
+      "status": "downloaded",
+      "size": 71394,
+      "sha256": "134a9a0c0405974343c17d1e98bcc39de241e6a7bd37cabfe0b13189bc9c9816"
+    }
+  ]
+}
