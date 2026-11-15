@@ -51,7 +51,7 @@ flowchart TD
 
 Every new submission starts pending. The website displays a reference number on successful submission. Administrator decisions are explicit, authenticated and audit logged. Only approved records with a publication timestamp enter the public feed. Rejected, pending, changes-requested and withdrawn records remain private. A withdrawn approved club may still have a separately labelled legacy archive entry until that legacy record is reconciled; it must not be presented as an approved listing.
 
-Current implementation permits administrators to revise the submitted public fields while making a decision. Request-changes notes remain internal; automated email to the submitter, resubmission links and versioned approval of changes are planned, not implemented. Administrators may contact the private representative manually. Optional admin notification email requires verified sender and recipient settings; the queue remains authoritative.
+Current implementation permits administrators to revise the submitted public fields while making a decision. Internal notes remain private; a separate message to the submitter is emailed with a secure amendment link when changes are requested. The original submission is reopened, amended and returned to pending under the same reference. Review history and earlier public payloads are retained. Optional admin notification email requires verified sender and recipient settings; the queue remains authoritative.
 
 ## Create an Event
 
@@ -80,11 +80,11 @@ Entry point: Find a Club page, Register My Club button; form route `/submit.php?
 - Administrators verify registration details and suitability for directory listing. Approval publishes a searchable club card and detailed profile. Rejection or withdrawal removes the approved record. Website registration is separate from formal NIWFF affiliation unless the federation explicitly decides otherwise.
 - Legacy club listings are labelled unverified; an approved record with a matching normalised name suppresses the legacy listing while approved. Duplicate reconciliation and robust identity matching remain outstanding.
 
-Future: club logos and secure uploads, multiple structured venues/sessions, club accounts, approval of subsequent changes, scheduled record confirmation, and separate affiliation management if required.
+Guided venue and session entry supports multiple named venues with addresses and weekly sessions referencing those locations. Each session has a weekday, 24-hour start/end times and optional men/women/mixed category. Server validation rejects invalid locations and non-increasing times. The existing free-text venue and schedule fields remain supported; users can explicitly convert old records. Published summaries are generated from the structured payload. Future: club logos and secure uploads, club accounts, approval of subsequent published-record changes, scheduled confirmation and separate affiliation management.
 
 ## Administration screen
 
-Route `/admin/`. Named admin accounts are created by a hosting operator through the CLI; passwords are hashed, not stored in plaintext. The review queue shows submission reference, type, status and received date, with pending items first. A review screen shows private representative contacts, editable public fields, decision selector, internal note and decision history. The current dashboard lists the latest 500 submissions; paging, filtering and search are future improvements.
+Route `/admin/`. Named admin accounts are created by a hosting operator through the CLI; passwords are hashed, not stored in plaintext. The dashboard has three primary functions: Submission Review (active and historical submissions), Club Maintenance (approved/withdrawn clubs) and Event Maintenance (approved/withdrawn events). Review screens show private representative contacts, editable public fields, decision selector, separate message to submitter and internal note, decision history and previous public payload comparisons. Maintenance edits publish immediately if approved, are audit logged and do not send submission review emails. Approved and legacy club profiles share a responsive two-column layout with playing information on the left and verification, location and public contact links on the right. The current dashboard lists the latest 500 submissions; paging, filtering and search are future improvements.
 
 | State | Publicly visible? | Meaning |
 | --- | --- | --- |
@@ -101,6 +101,8 @@ Route `/admin/`. Named admin accounts are created by a hosting operator through 
 | admins | Unique username, password hash, active status |
 | submissions | Kind, JSON form payload, private contact name/email, status, reviewer note, timestamps, reviewer reference |
 | review_log | Submission/admin references, old/new status, note and decision timestamp |
+| submission_amendments | One active hashed, expiring amendment token and requested-change message per submission |
+| submission_revisions | Prior public payload snapshots and actor/timestamp for comparison |
 
 `submissions.reviewed_by` references `admins.id`; review log records reference both submission and administrator. Admin review updates and audit entries are transactional. No personal details, internal notes or login data are included in the public API.
 
@@ -116,7 +118,7 @@ Before inviting real clubs: verify Apache restrictions, establish privacy notice
 
 ## Implementation status and acceptance
 
-The forms, database schema, authenticated review queue, publication feed, calendar and directory integration are committed to the recovery branch. Database provisioning and end-to-end PHP/MySQL/browser testing on clannEolas remain outstanding. Do not treat the workflow as production-ready.
+The forms, database schema, authenticated review and maintenance screens, secure amendment workflow, guided club session entry, publication feed, calendar and directory integration are committed to the admin-submission-workflows branch. Database provisioning and end-to-end PHP/MySQL/browser testing on clannEolas remain outstanding. Do not treat the workflow as production-ready.
 
 Acceptance: pending submissions are persisted but absent from public views; admin approval publishes the correct record; rejected/withdrawn records are absent from the approved feed; private contacts and notes never appear in public responses; completed events enter the correct archive year; invalid data and unauthorised reviews are refused; administrators can inspect decision history.
 
@@ -125,3 +127,7 @@ See [database workflow setup and acceptance checklist](databaseWorkflows.md), [s
 ## Website version
 
 The authoritative version is the CSS custom property `--siteVersion` in root-level `version.css`, matching the HWFC approach. The shared `assets/site.css` imports it and renders “Website version …” at the foot of all public pages and PHP submission/administration screens. The initial staging development version is 0.1a1. Update the single source for each distinct shared development build; do not reuse a published version. Release numbering follows the shared release policy and project-specific instructions. Git deployment does not require a separate version-generation step.
+
+## Amendment workflow
+
+Changes Requested requires a public-facing explanation distinct from the internal administrator note. A cryptographically random, single-use bearer link is emailed only to the original private representative address. The database stores its SHA-256 hash, not the raw token. The link is valid only while the record is awaiting changes, expires after a configurable 14 days by default, and is replaced when an administrator saves Changes Requested again. The token is exchanged for a session and removed from the browser URL. The amendment form pre-populates public fields; original representative contact details are read-only to preserve the verified return route. A successful resubmission locks the original record, saves a prior payload snapshot, changes status to pending, consumes the token, and notifies the admin after committing. No duplicate submission is created. Previous versions are compared with current public fields in admin. Email delivery, expired and reused links, simultaneous submissions and privacy controls require staging acceptance. Restrict access to web logs containing original link URLs.
