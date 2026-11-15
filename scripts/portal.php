@@ -57,8 +57,8 @@ function fields(string $kind): array {
         'name'=>['Club Name','text',true,160],
         'area'=>['Council Area','text',true,160],
         'town'=>['Town / Location','text',true,160],
-        'venue'=>['Venue and Address','textarea',true,500],
-        'sessions'=>['Session Days and Times','textarea',true,1000],
+        'venue'=>['Venue and Address','textarea',true,5000],
+        'sessions'=>['Session Days and Times','textarea',true,10000],
         'eligibility'=>['Age Groups and Men’s / Women’s / Mixed Sessions','textarea',true,1000],
         'cost'=>['Membership / Session Cost','text',false,200],
         'description'=>['Club Description','textarea',true,3000],
@@ -145,7 +145,7 @@ function form_fields(string $kind,array $values=[]): string {
         $out.='</div>';
         if($kind==='club'&&$key==='sessions'){
             $json=isset($values['schedule_data'])?json_encode($values['schedule_data'],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE):'';
-            $out.='<div id="schedule-editor" class="schedule-editor" hidden><input type="hidden" name="schedule_data" id="schedule-data" value="'.h($json).'"></div>';
+            $out.='<div id="schedule-editor" class="schedule-editor" hidden><input type="hidden" name="schedule_data" id="schedule-data" disabled value="'.h($json).'"></div>';
         }
     }
     return $out;
