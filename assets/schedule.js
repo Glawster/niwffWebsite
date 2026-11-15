@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded",()=>{
  const el=(tag,attrs={},text="")=>{const x=document.createElement(tag);for(const [k,v] of Object.entries(attrs))x.setAttribute(k,v);if(text)x.textContent=text;return x;};
  const button=(label,fn)=>{const b=el("button",{type:"button",class:label.startsWith("Remove")?"btn btn-outline schedule-remove":"btn btn-outline"},label);b.addEventListener("click",fn);return b;};
  const field=(label,input)=>{const wrap=el("label",{class:"schedule-field field"});wrap.append(el("span",{},label),input);return wrap;};
- const input=(type,value,placeholder="",max=0)=>{const x=el("input",{type,placeholder});x.value=value||"";x.required=true;if(max)x.maxLength=max;if(type==="time")x.step="60";return x;};
- const select=(items,value)=>{const x=el("select");x.required=true;for(const [val,label] of items)x.append(el("option",{value:String(val)},label));x.value=String(value??"");return x;};
+ const input=(type,value,placeholder="",max=0)=>{const x=el("input",{type,placeholder});x.value=value||"";x.required=!optional;if(max)x.maxLength=max;if(type==="time")x.step="60";return x;};
+ const select=(items,value)=>{const x=el("select");x.required=!optional;for(const [val,label] of items)x.append(el("option",{value:String(val)},label));x.value=String(value??"");return x;};
  const toolbar=el("div",{class:"schedule-toolbar button-row"}),body=el("div",{class:"schedule-body"});
  editor.append(toolbar,body);
  const sync=()=>{hidden.value=active?JSON.stringify(data):"";};
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded",()=>{
    name.addEventListener("input",()=>{v.name=name.value;refreshOptions();sync();});
    address.addEventListener("input",()=>{v.address=address.value;sync();});
    row.append(field("Venue name",name),field("Address",address));
-   if(data.venues.length>1)row.append(button("Remove location",()=>{
+   if(optional||data.venues.length>1)row.append(button("Remove location",()=>{
     if(data.sessions.some(s=>s.venue===i)){alert("Move sessions to another location before removing this location.");return;}
     data.venues.splice(i,1);for(const s of data.sessions)if(s.venue>i)s.venue--;render();
    }));
@@ -75,14 +75,14 @@ document.addEventListener("DOMContentLoaded",()=>{
    for(const [key,control] of [["day",day],["start",start],["end",end],["category",category]])control.addEventListener("input",()=>{s[key]=control.value;sync();});
    location.addEventListener("change",()=>{s.venue=location.value===""?null:Number(location.value);sync();});
    row.append(field("Day",day),field("Location",location),field("Start time",start),field("Finish time",end),field("Session category",category));
-   if(data.sessions.length>1)row.append(button("Remove session",()=>{data.sessions.splice(i,1);render();}));
+   if(optional||data.sessions.length>1)row.append(button("Remove session",()=>{data.sessions.splice(i,1);render();}));
    sessionList.append(row);
   });
   body.append(sessionList,button("＋ Add session",()=>{if(data.sessions.length<30){data.sessions.push({day:"",venue:data.venues.length===1?0:null,start:"",end:"",category:""});render();}}));
   refreshOptions();sync();
  };
  editor.hidden=false;
- if(data.venues.length&&data.sessions.length)active=true;
+ if(data.venues.length||data.sessions.length)active=true;
  else if(!hadText&&!optional){active=true;data.venues.push({name:"",address:""});data.sessions.push({day:"",venue:0,start:"",end:"",category:""});}
  form.addEventListener("submit",sync);
  render();
