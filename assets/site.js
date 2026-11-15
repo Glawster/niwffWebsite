@@ -74,7 +74,7 @@ function clubs(){
   if(!c) return notFound();
   title(c.name);
   if(c.approved){
-   const details=[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility]].filter(x=>x[1]).map(([label,value])=>'<p><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join("");
+   const details=[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility],["How to contact us",c.contact_method]].filter(x=>x[1]).map(([label,value])=>'<p><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join("");
    const external=[["Club website",c.website],["Social media",c.social]].filter(x=>x[1]&&/^https?:\/\//i.test(x[1])).map(([label,url])=>'<a class="btn btn-outline" href="'+esc(url)+'" rel="noopener noreferrer">'+label+' ↗</a>').join("");
    return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to directory</a></div><div class="panel"><span class="tag">Approved club</span><h2>About this club</h2><p>'+esc(c.description)+'</p>'+details+(c.public_email?'<p><strong>Public contact:</strong> <a href="mailto:'+esc(c.public_email)+'">'+esc(c.public_email)+'</a></p>':'')+'<div class="button-row">'+external+'</div></div>');
   }

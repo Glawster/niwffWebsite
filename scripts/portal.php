@@ -65,6 +65,7 @@ function fields(string $kind): array {
         'accessibility'=>['Accessibility Information','textarea',false,1000],
         'website'=>['Club Website','url',false,500],
         'social'=>['Club social media URL','url',false,500],
+        'contact_method'=>['How to Contact Us (Public - Avoid Personal Phone or Email Unless Necessary)','textarea',false,1000],
         'public_email'=>['Public Club Email (Optional, Published If Approved)','email',false,254],
     ];
     return [

@@ -4,6 +4,8 @@ require dirname(__DIR__).'/scripts/portal.php';
 session_start_safe();
 try { $pdo=db(); } catch(Throwable $e){http_response_code(503);page('Administration','<div class="notice">Database not configured.</div>');exit;}
 $errors=[];
+$view=$_GET['view']??($_POST['view']??'new');
+if (!is_string($view) || !in_array($view,['new','old_club','old_event'],true)) $view='new';
 if ($_SERVER['REQUEST_METHOD']==='POST'){
     check_csrf();
     $action=$_POST['action']??'';
@@ -38,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                 $q=$pdo->prepare("UPDATE submissions SET payload=?,status=?,reviewer_note=?,reviewed_by=?,published_at=CASE WHEN ?='approved' THEN COALESCE(published_at,UTC_TIMESTAMP()) ELSE NULL END WHERE id=?");
                 $q->execute([json_encode($payload,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE),$new,$note,$who['id'],$new,$id]);
                 $q=$pdo->prepare('INSERT INTO review_log(submission_id,admin_id,old_status,new_status,note) VALUES(?,?,?,?,?)');
-                $q->execute([$id,$who['id'],$row['status'],$new,$note]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1');
+                $q->execute([$id,$who['id'],$row['status'],$new,$note]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1&view='.rawurlencode($view));
             }
         }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log('NIWFF review error: '.$e->getMessage());$errors[]='Review could not be saved.';}
     }
@@ -47,7 +49,7 @@ $who=admin();
 if (!$who){
     page('Administrator Sign In',errors_html($errors).'<form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="login"><div class="field"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required></div><div class="field"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password" required></div><button class="btn btn-dark">Sign in</button></form>');exit;
 }
-$top='<div class="button-row"><a class="btn btn-outline" href="/admin/">Review Queue</a><form method="post"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="logout"><button class="btn btn-outline">Sign out</button></form></div><p>Signed in as '.h($who['username']).'</p>';
+$top='<div class="button-row"><a class="btn btn-outline" href="/admin/?view=new">New Submissions</a><a class="btn btn-outline" href="/admin/?view=old_club">Old Clubs</a><a class="btn btn-outline" href="/admin/?view=old_event">Old Events</a><form method="post"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="logout"><button class="btn btn-outline">Sign out</button></form></div><p>Signed in as '.h($who['username']).'</p>';
 $id=filter_var($_GET['id']??($_POST['id']??null),FILTER_VALIDATE_INT);
 if($id){
     $q=$pdo->prepare('SELECT * FROM submissions WHERE id=?');$q->execute([$id]);$row=$q->fetch();
@@ -57,8 +59,23 @@ if($id){
     $options='';foreach(['pending','approved','rejected','changes_requested','withdrawn'] as $status)$options.='<option value="'.$status.'"'.($row['status']===$status?' selected':'').'>'.h(str_replace('_',' ',$status)).'</option>';
     $history=$pdo->prepare('SELECT l.*,a.username FROM review_log l JOIN admins a ON a.id=l.admin_id WHERE submission_id=? ORDER BY l.id DESC');$history->execute([$id]);$log='';
     foreach($history as $item)$log.='<li>'.h($item['created_at'].' UTC — '.$item['username'].': '.$item['old_status'].' → '.$item['new_status'].' — '.$item['note']).'</li>';
-    page('Review #'.$id,$top.(isset($_GET['saved'])?'<p role="status">Review Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="review"><input type="hidden" name="id" value="'.$id.'">'.form_fields($row['kind'],$payload).'<div class="field"><label for="status">Review Decision</label><select id="status" name="status">'.$options.'</select></div><div class="field"><label for="note">Internal Review Note</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($row['reviewer_note']??'').'</textarea></div><button class="btn btn-dark">Save decision</button></form><h2>Review History</h2><ul>'.$log.'</ul>');exit;
+    page('Review #'.$id,$top.(isset($_GET['saved'])?'<p role="status">Review Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="review"><input type="hidden" name="id" value="'.$id.'"><input type="hidden" name="view" value="'.h($view).'">'.form_fields($row['kind'],$payload).'<div class="field"><label for="status">Review Decision</label><select id="status" name="status">'.$options.'</select></div><div class="field"><label for="note">Internal Review Note</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($row['reviewer_note']??'').'</textarea></div><button class="btn btn-dark">Save decision</button></form><h2>Review History</h2><ul>'.$log.'</ul>');exit;
 }
-$list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions ORDER BY (status='pending') DESC,id DESC LIMIT 500");
-$rows='';foreach($list as $row){$p=json_decode($row['payload'],true);$rows.='<tr><td><a href="/admin/?id='.(int)$row['id'].'">#'.(int)$row['id'].' '.h($p['title']??$p['name']??'Submission').'</a></td><td>'.h($row['kind']).'</td><td>'.h($row['status']).'</td><td>'.h($row['created_at']).'</td></tr>';}
-page('NIWFF Administration',$top.'<p>Pending items are listed first. Only approved items are visible to the public. Select a submission to edit, approve, reject, request changes or withdraw it.</p><div class="panel table-scroll"><table class="review-table"><thead><tr><th>Submission</th><th>Type</th><th>Status</th><th>Received (UTC)</th></tr></thead><tbody>'.$rows.'</tbody></table>'.($rows?'':'<p>No submissions yet.</p>').'</div>');
+if ($view==='old_club') {
+    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE kind='club' AND status<>'pending' ORDER BY id DESC LIMIT 500");
+    $listTitle='Club Submission History';
+    $listIntro='Showing older club submissions (non-pending statuses).';
+    $empty='No older club submissions found.';
+} elseif ($view==='old_event') {
+    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE kind='event' AND status<>'pending' ORDER BY id DESC LIMIT 500");
+    $listTitle='Event Submission History';
+    $listIntro='Showing older event submissions (non-pending statuses).';
+    $empty='No older event submissions found.';
+} else {
+    $list=$pdo->query("SELECT id,kind,status,payload,created_at FROM submissions WHERE status='pending' ORDER BY id DESC LIMIT 500");
+    $listTitle='NIWFF Administration';
+    $listIntro='Showing new submissions only. Approved and older reviewed submissions are hidden by default.';
+    $empty='No new submissions at the moment.';
+}
+$rows='';foreach($list as $row){$p=json_decode($row['payload'],true);$rows.='<tr><td><a href="/admin/?id='.(int)$row['id'].'&view='.rawurlencode($view).'">#'.(int)$row['id'].' '.h($p['title']??$p['name']??'Submission').'</a></td><td>'.h($row['kind']).'</td><td>'.h($row['status']).'</td><td>'.h($row['created_at']).'</td></tr>';}
+page($listTitle,$top.'<p>'.$listIntro.'</p><div class="panel table-scroll"><table class="review-table"><thead><tr><th>Submission</th><th>Type</th><th>Status</th><th>Received (UTC)</th></tr></thead><tbody>'.$rows.'</tbody></table>'.($rows?'':'<p>'.$empty.'</p>').'</div>');
