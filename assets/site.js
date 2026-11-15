@@ -15,17 +15,8 @@ const TEAM=[
   {slug:"over-65s",name:"Over 65s",evidence:"The legacy 2025 international competition calendar includes Northern Ireland Over-65s."},
   {slug:"over-70s",name:"Over 70s",evidence:"The legacy calendar and a report of friendly games at Seaview refer to Northern Ireland Over-70s."}
 ];
-let CLUBS=[
-  {name:"Hillsborough Walking Football",area:"Lisburn & Castlereagh",town:"Hillsborough / Lisburn",slug:"hillsborough",description:"A community walking football programme associated with Hillsborough Boys FC. Previous times and membership arrangements require confirmation.",link:"https://hillsboroughwalkingfootball.com/"},
-  {name:"Scrabo Strollers (Ards)",area:"Ards & North Down",town:"Newtownards",slug:"ards",description:"An established Newtownards walking football club, with historical sessions at Ards Blair Mayne Leisure Centre and Londonderry Park."},
-  {name:"Bangor Walking Football",area:"Ards & North Down",town:"Bangor",slug:"bangor",description:"An affiliated club listed on the original NIWFF website."},
-  {name:"CALA Walking Football",area:"Belfast",town:"Belfast area",slug:"cala",description:"An affiliated walking football club listed by NIWFF.",link:"https://calawalkingfootballclub.wordpress.com/"},
-  {name:"Shankill Walking Football",area:"Belfast",town:"Belfast",slug:"shankill",description:"The original website records sessions at Shankill Leisure Centre; current times have not been verified."},
-  {name:"Avoniel Walking Football",area:"Belfast",town:"Belfast",slug:"avoniel",description:"The original website records sessions at Avoniel Leisure Centre; current times have not been verified."},
-  {name:"Olympia Walking Football",area:"Belfast",town:"Belfast",slug:"olympia",description:"An affiliated club listed on the original NIWFF website."},
-  {name:"BraveHEARTS Walking Football",area:"Belfast",town:"West Belfast",slug:"bravehearts",description:"The H.E.A.R.T. Project's walking football community, historically based at Grosvenor Recreation and Community Centre."},
-  {name:"Banbridge Walking Football Club",area:"Armagh, Banbridge & Craigavon",town:"Banbridge / Gilford",slug:"banbridge",description:"A community walking football club formed in 2024, with previously advertised sessions in Gilford and Banbridge."}
-];
+let CLUBS=[];
+let clubFeedAvailable=false;
 const EVENTS=[
  ["21–23 Mar 2025","NI Over-60s and Over-70s matches","Bishops Cleeve, Cheltenham"],
  ["28 Mar 2025","NIWFF league tournament","Londonderry Park, Newtownards"],
@@ -54,7 +45,8 @@ const intro=(label,heading,description)=>'<section class="page-hero"><div class=
 const section=(html,extra="")=>'<section class="section '+extra+'"><div class="shell">'+html+'</div></section>';
 const card=(icon,heading,body,href,text="Explore")=>'<a class="tile-link" href="'+href+'"><article class="card"><span class="card-icon" aria-hidden="true">'+icon+'</span><h3>'+heading+'</h3><p>'+body+'</p><div class="card-footer">'+text+' <span aria-hidden="true">→</span></div></article></a>';
 const teamCard=(t)=>card("⚽","Northern Ireland "+t.name,"International walking football squad, fixtures and historical tournament information.","/international-teams/"+t.slug+"/","View team");
-const clubCard=(c)=>'<article class="card club-card" data-area="'+esc(c.area.toLowerCase())+'" data-search="'+esc((c.name+" "+c.town+" "+c.area).toLowerCase())+'"><div class="kicker">'+esc(c.area)+'</div><h3>'+esc(c.name)+'</h3><div class="meta">📍 '+esc(c.town)+'</div><p>'+esc(c.description)+'</p>'+(c.approved?'<span class="tag">Approved club</span>':'<span class="tag tag-archive">Details under review</span>')+'<div class="card-footer"><a href="/find-a-club/?club='+encodeURIComponent(c.slug)+'">View club record →</a></div></article>';
+const sortClubs=(clubs,mode="area")=>[...clubs].sort((a,b)=>{const compare=(x,y)=>x.localeCompare(y,"en-GB",{sensitivity:"base"});return (mode==="area"?(!a.area-!b.area||compare(a.area,b.area)):0)||compare(a.name,b.name)||a.id-b.id;});
+const clubCard=(c)=>'<article class="card club-card" data-area="'+esc(c.area.toLowerCase())+'" data-search="'+esc((c.name+" "+c.town+" "+c.area).toLowerCase())+'"><div class="kicker">'+esc(c.area||"Council area to be confirmed")+'</div><h3>'+esc(c.name)+'</h3><div class="meta">📍 '+esc(c.town||"Location to be confirmed")+'</div><p>'+esc(c.description||"Club information to be confirmed.")+'</p>'+(c.approved?'<span class="tag">Approved club</span>':'<span class="tag tag-archive">Details under review</span>')+'<div class="card-footer"><a href="/find-a-club/?club='+encodeURIComponent(c.slug)+'">View club record →</a></div></article>';
 function home(){
  title("Home");
  return '<section class="hero"><div class="shell hero-inner"><div><p class="eyebrow">Northern Ireland Walking Football Federation</p><h1>Football for life.<br>Football for everyone.</h1><p class="lead">Find your local walking football community, discover the international teams and stay connected to the game across Northern Ireland.</p><div class="hero-actions"><a class="btn btn-primary" href="/find-a-club/">Find a club <span aria-hidden="true">→</span></a><a class="btn btn-light" href="/about/">Discover walking football</a></div></div><div class="pitch" aria-hidden="true"><div class="pitch-line"></div><div class="pitch-box"></div><div class="pitch-box right"></div><div class="pitch-ball">⚽</div><div class="pitch-caption">Move • Play • Belong</div></div></div></section>'+
@@ -71,7 +63,7 @@ function clubs(){
  const selected=new URLSearchParams(location.search).get("club");
  if(selected){
   const c=CLUBS.find(x=>x.slug===selected);
-  if(!c) return notFound();
+  if(!c) return clubFeedAvailable?notFound():intro("Find a club","Club information unavailable","Please try again later.");
   title(c.name);
   const approved=c.approved===true;
   const details=approved?[["Venue",c.venue],["Sessions",c.sessions],["Eligibility",c.eligibility],["Costs",c.cost],["Accessibility",c.accessibility]].filter(x=>x[1]).map(([label,value])=>'<p class="club-detail-text"><strong>'+esc(label)+':</strong> '+esc(value)+'</p>').join(""):"";
@@ -79,12 +71,12 @@ function clubs(){
   const contact=approved?(c.contact_method?'<p><strong>How to contact us:</strong> '+esc(c.contact_method)+'</p>':'')+(c.public_email?'<p><strong>Public email:</strong> <a href="mailto:'+esc(c.public_email)+'">'+esc(c.public_email)+'</a></p>':''):"";
   const warning=approved?"":notice("This profile is based on an archived website listing. Session times, eligibility, costs and contact details are not confirmed as current.");
   const enquiry=(!external&&!contact)?'<a class="btn btn-dark" href="/contact/">Enquire through NIWFF</a>':"";
-  return intro("Find a club",esc(c.name),esc(c.town))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to club directory</a></div><div class="content-grid"><article class="panel">'+(approved?'<span class="tag">Approved club</span>':'')+'<h2>About this club</h2><p>'+esc(c.description)+'</p>'+details+warning+enquiry+'</article><aside class="panel"><h3>Club record</h3><p><strong>Area:</strong> '+esc(c.area)+'</p><p><strong>Location:</strong> '+esc(c.town)+'</p><p><strong>Verification:</strong> '+(approved?'Approved':'Pending')+'</p>'+contact+external+'</aside></div>');
+  return intro("Find a club",esc(c.name),esc(c.town||"Location to be confirmed"))+section('<div class="breadcrumb"><a href="/find-a-club/">← Back to club directory</a></div><div class="content-grid"><article class="panel">'+(approved?'<span class="tag">Approved club</span>':'')+'<h2>About this club</h2><p>'+esc(c.description||"Club information to be confirmed.")+'</p>'+details+warning+enquiry+'</article><aside class="panel"><h3>Club record</h3><p><strong>Area:</strong> '+esc(c.area||"To be confirmed")+'</p><p><strong>Location:</strong> '+esc(c.town||"To be confirmed")+'</p><p><strong>Verification:</strong> '+(approved?'Approved':'Pending')+'</p>'+contact+external+'</aside></div>');
  }
  title("Find a Club");
- return intro("Get playing","Find a club","Explore walking football clubs in Northern Ireland. These listings are being updated and verified for the new NIWFF website.")+
- section('<div class="button-row"><a class="btn btn-dark" href="/submit.php?kind=club">Register My Club</a></div>'+notice("Approved clubs are identified in the directory. Historical listings remain labelled for review.")+
- '<div class="filters"><div class="field"><label for="club-query">Search clubs or towns</label><input id="club-query" type="search" placeholder="e.g. Bangor, Belfast, Hillsborough"></div><div class="field"><label for="club-region">Council area</label><select id="club-region"><option value="">All areas</option>'+[...new Set(CLUBS.map(c=>c.area))].sort().map(x=>'<option>'+esc(x)+'</option>').join("")+'</select></div></div><p class="results-count" id="club-count" aria-live="polite">'+CLUBS.length+' clubs listed</p><div class="cards" id="club-list">'+CLUBS.map(clubCard).join("")+'</div><div class="empty" id="club-empty" hidden><h3>No matching clubs</h3><p>Try a different town or area.</p></div>');
+ return intro("Get playing","Find a club","Explore approved walking football club records in Northern Ireland.")+
+ section('<div class="button-row"><a class="btn btn-dark" href="/submit.php?kind=club">Register My Club</a></div>'+(!clubFeedAvailable?notice("The club directory is temporarily unavailable. Please try again later."):"")+
+ '<div class="filters"><div class="field"><label for="club-query">Search clubs or towns</label><input id="club-query" type="search" placeholder="e.g. Bangor, Belfast, Hillsborough"></div><div class="field"><label for="club-region">Council area</label><select id="club-region"><option value="">All areas</option>'+[...new Set(CLUBS.map(c=>c.area).filter(Boolean))].sort().map(x=>'<option>'+esc(x)+'</option>').join("")+'</select></div><div class="field"><label for="club-sort">Sort by</label><select id="club-sort"><option value="area">Council area</option><option value="name">Club name (A–Z)</option></select></div></div><p class="results-count" id="club-count" aria-live="polite">'+CLUBS.length+' clubs listed</p><div class="cards" id="club-list">'+sortClubs(CLUBS).map(clubCard).join("")+'</div><div class="empty" id="club-empty"'+(CLUBS.length?' hidden':'')+'><h3>No matching clubs</h3><p>Try a different town or area.</p></div>');
 }
 function international(){
  title("International Teams");
@@ -209,8 +201,8 @@ function render(){
  if(cal){let offset=0;cal.addEventListener("click",e=>{const button=e.target.closest("button[data-month]");if(button){offset+=Number(button.dataset.month);cal.innerHTML=calendar(offset);cal.querySelector('button[data-month="'+button.dataset.month+'"]').focus();}});}
 
 
- const query=document.getElementById("club-query"),region=document.getElementById("club-region");
- if(query && region){
+ const query=document.getElementById("club-query"),region=document.getElementById("club-region"),sort=document.getElementById("club-sort"),list=document.getElementById("club-list");
+ if(query && region && sort && list){
   const update=()=>{
    const q=query.value.trim().toLowerCase(),a=region.value.toLowerCase();
    let n=0;
@@ -219,6 +211,7 @@ function render(){
    document.getElementById("club-empty").hidden=n!==0;
   };
   query.addEventListener("input",update);region.addEventListener("change",update);
+  sort.addEventListener("change",()=>{list.innerHTML=sortClubs(CLUBS,sort.value).map(clubCard).join("");update();});
  }
 }
 document.getElementById("nav-toggle").addEventListener("click",function(){
@@ -232,9 +225,8 @@ async function loadPublic(){
   const data=await response.json();
   if(Array.isArray(data.events))UPCOMING=data.events.filter(e=>e.approved===true);
   if(Array.isArray(data.clubs)){
-   const approved=data.clubs.filter(c=>c.approved===true).map(c=>({...c,slug:"approved-"+c.id,link:c.website}));
-   const names=new Set(approved.map(c=>c.name.trim().toLowerCase()));
-   CLUBS=approved.concat(CLUBS.filter(c=>!names.has(c.name.trim().toLowerCase())));
+   CLUBS=data.clubs.filter(c=>c.approved===true&&typeof c.name==="string"&&c.name.trim()).map(c=>({...c,area:c.area||"",town:c.town||"",description:c.description||"",slug:"approved-"+c.id}));
+   clubFeedAvailable=true;
   }
  }catch(e){console.warn("NIWFF publication feed unavailable");}
 }
