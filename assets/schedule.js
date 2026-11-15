@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  const venueText=document.getElementById("venue"),sessionText=document.getElementById("sessions");
  if(!editor||!hidden||!venueText||!sessionText)return;
  const form=editor.closest("form"),legacy=[venueText.closest(".field"),sessionText.closest(".field")];
+ const optional=editor.dataset.optional==="yes";
  const hadText=!!(venueText.value.trim()||sessionText.value.trim());
  const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
  let data={venues:[],sessions:[]};
@@ -37,7 +38,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   }));
   body.replaceChildren();
   for(const x of legacy)x.hidden=active;
-  venueText.required=sessionText.required=!active;
+  venueText.required=sessionText.required=!active&&!optional;
   hidden.disabled=!active;sync();
   if(!active)return;
   if(hadText){
@@ -82,7 +83,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  };
  editor.hidden=false;
  if(data.venues.length&&data.sessions.length)active=true;
- else if(!hadText){active=true;data.venues.push({name:"",address:""});data.sessions.push({day:"",venue:0,start:"",end:"",category:""});}
+ else if(!hadText&&!optional){active=true;data.venues.push({name:"",address:""});data.sessions.push({day:"",venue:0,start:"",end:"",category:""});}
  form.addEventListener("submit",sync);
  render();
 });
