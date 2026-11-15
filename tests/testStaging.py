@@ -98,6 +98,11 @@ class StagingTests(unittest.TestCase):
         self.assertIn('aria-expanded', js)
         self.assertIn('club-query', js)
         self.assertIn("historical", js.lower())
+        self.assertIn("let CLUBS=[];", js)
+        self.assertIn('id="club-sort"', js)
+        self.assertIn("sortClubs(CLUBS,sort.value)", js)
+        self.assertIn("clubFeedAvailable", js)
+        self.assertNotIn("CLUBS=approved.concat", js)
 
 
 if __name__ == "__main__":
