@@ -11,11 +11,11 @@ document.addEventListener("DOMContentLoaded",()=>{
  try{const saved=JSON.parse(hidden.value);if(saved&&Array.isArray(saved.venues)&&Array.isArray(saved.sessions))data=saved;}catch(e){}
  let active=false;
  const el=(tag,attrs={},text="")=>{const x=document.createElement(tag);for(const [k,v] of Object.entries(attrs))x.setAttribute(k,v);if(text)x.textContent=text;return x;};
- const button=(label,fn)=>{const b=el("button",{type:"button",class:"btn btn-outline"},label);b.addEventListener("click",fn);return b;};
- const field=(label,input)=>{const wrap=el("label",{class:"schedule-field"});wrap.append(el("span",{},label),input);return wrap;};
+ const button=(label,fn)=>{const b=el("button",{type:"button",class:label.startsWith("Remove")?"btn btn-outline schedule-remove":"btn btn-outline"},label);b.addEventListener("click",fn);return b;};
+ const field=(label,input)=>{const wrap=el("label",{class:"schedule-field field"});wrap.append(el("span",{},label),input);return wrap;};
  const input=(type,value,placeholder="",max=0)=>{const x=el("input",{type,placeholder});x.value=value||"";x.required=true;if(max)x.maxLength=max;if(type==="time")x.step="60";return x;};
  const select=(items,value)=>{const x=el("select");x.required=true;for(const [val,label] of items)x.append(el("option",{value:String(val)},label));x.value=String(value??"");return x;};
- const toolbar=el("div",{class:"button-row"}),body=el("div",{class:"schedule-body"});
+ const toolbar=el("div",{class:"schedule-toolbar button-row"}),body=el("div",{class:"schedule-body"});
  editor.append(toolbar,body);
  const sync=()=>{hidden.value=active?JSON.stringify(data):"";};
  const render=()=>{
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded",()=>{
    }
   };
   data.venues.forEach((v,i)=>{
-   const row=el("fieldset",{class:"schedule-row"});row.append(el("legend",{},"Location "+(i+1)));
+   const row=el("fieldset",{class:"schedule-row schedule-location"});row.append(el("legend",{},"Location "+(i+1)));
    const name=input("text",v.name,"e.g. Aurora Leisure Centre",160),address=input("text",v.address,"Full address or postcode",300);
    name.addEventListener("input",()=>{v.name=name.value;refreshOptions();sync();});
    address.addEventListener("input",()=>{v.address=address.value;sync();});
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   body.append(venueList,button("＋ Add location",()=>{if(data.venues.length<10){data.venues.push({name:"",address:""});render();}}));
   body.append(el("h2",{},"Weekly sessions"),el("p",{},"Choose a day and location, then enter start and finish times in 24-hour format."));
   data.sessions.forEach((s,i)=>{
-   const row=el("fieldset",{class:"schedule-row"});row.append(el("legend",{},"Session "+(i+1)));
+   const row=el("fieldset",{class:"schedule-row schedule-session"});row.append(el("legend",{},"Session "+(i+1)));
    const day=select([["","Select day"],...days.map(d=>[d,d])],s.day),location=select([],s.venue),start=input("time",s.start),end=input("time",s.end),category=select([["","Any / not specified"],["Men","Men"],["Women","Women"],["Mixed","Mixed"]],s.category);
    category.required=false;venueSelectors.push([location,s]);
    for(const [key,control] of [["day",day],["start",start],["end",end],["category",category]])control.addEventListener("input",()=>{s[key]=control.value;sync();});
