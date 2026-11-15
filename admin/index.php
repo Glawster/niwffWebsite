@@ -29,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
         $id=filter_var($_POST['id']??null,FILTER_VALIDATE_INT);
         $new=$_POST['status']??'';
         $note=is_string($_POST['note']??null)?trim($_POST['note']):'';
-        if (!in_array($action,['review','maintain'],true)||!$id||!in_array($new,['pending','approved','rejected','changes_requested','withdrawn'],true)||strlen($note)>4000){http_response_code(400);exit('Invalid review request.');}
+        $message=is_string($_POST['message']??null)?trim($_POST['message']):'';
+        if (!in_array($action,['review','maintain'],true)||!$id||!in_array($new,['pending','approved','rejected','changes_requested','withdrawn'],true)||strlen($note)>4000||strlen($message)>4000){http_response_code(400);exit('Invalid review request.');}
         try{
             $pdo->beginTransaction();
             $q=$pdo->prepare('SELECT * FROM submissions WHERE id=? FOR UPDATE');$q->execute([$id]);$row=$q->fetch();
@@ -37,12 +38,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
             if ($action==='maintain' && (!in_array($row['status'],['approved','withdrawn'],true) || !in_array($new,['approved','withdrawn'],true) || $row['kind']!==($view==='clubs'?'club':($view==='events'?'event':'')))) throw new RuntimeException('Invalid maintenance record or decision.');
             if ($action==='review' && (in_array($view,['clubs','events'],true) || in_array($row['status'],['approved','withdrawn'],true))) throw new RuntimeException('Use record maintenance for approved or withdrawn records.');
             [$payload,$validation]=validate_payload($row['kind'],$_POST);
+            if($new==='changes_requested'&&$message==='') $validation[]='Enter a message explaining the requested changes.';
             if ($validation){$pdo->rollBack();$errors=$validation;}
             else{
+                save_revision($pdo,$id,'before_admin_update',$row['payload']);
+                $amendUrl=$new==='changes_requested'?issue_amendment($pdo,$id,$message):'';
+                if($new!=='changes_requested') revoke_amendment($pdo,$id);
                 $q=$pdo->prepare("UPDATE submissions SET payload=?,status=?,reviewer_note=?,reviewed_by=?,published_at=CASE WHEN ?='approved' THEN COALESCE(published_at,UTC_TIMESTAMP()) ELSE NULL END WHERE id=?");
                 $q->execute([json_encode($payload,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE),$new,$action==='maintain'?($row['reviewer_note']??null):$note,$who['id'],$new,$id]);
-                $emailAudit=$action==='maintain'?'Record maintenance (no submission email).':notify_submitter_review($row,$new,$note);
-                $historyNote=$note!=='' ? $note."\n".$emailAudit : $emailAudit;
+                $emailAudit=$action==='maintain'?'Record maintenance (no submission email).':notify_submitter_review($row,$new,$message,$amendUrl);
+                $historyNote=($note!==''?'Internal note: '.$note."\n":'').($message!==''?'Message to submitter: '.$message."\n":'').$emailAudit;
                 $q=$pdo->prepare('INSERT INTO review_log(submission_id,admin_id,old_status,new_status,note) VALUES(?,?,?,?,?)');
                 $q->execute([$id,$who['id'],$row['status'],$new,$historyNote]);$pdo->commit();redirect('/admin/?id='.$id.'&saved=1&view='.rawurlencode($new==='approved'||$new==='withdrawn'?($row['kind']==='club'?'clubs':'events'):$view));
             }
@@ -79,9 +84,17 @@ if($id){
         $historyNote=str_replace(["\r\n","\n","\r"],' | ',(string)$item['note']);
         $log.='<li>'.h($item['created_at'].' UTC — '.$item['username'].': '.$item['old_status'].' → '.$item['new_status'].' — '.$historyNote).'</li>';
     }
+    $revisions=$pdo->prepare('SELECT actor,payload,created_at FROM submission_revisions WHERE submission_id=? ORDER BY id DESC');$revisions->execute([$id]);$versions='';
+    foreach($revisions as $revision){
+        $previous=json_decode($revision['payload'],true,512,JSON_THROW_ON_ERROR);$changes='';
+        foreach(fields($row['kind']) as $key=>[$label]){
+            if(($previous[$key]??'')!==($payload[$key]??'')) $changes.='<li><strong>'.h($label).':</strong> '.h((string)($previous[$key]??'')).' → '.h((string)($payload[$key]??'')).'</li>';
+        }
+        $versions.='<details><summary>'.h($revision['created_at'].' UTC — '.str_replace('_',' ',$revision['actor'])).'</summary>'.($changes?'<ul>'.$changes.'</ul>':'<p>No differences from current public fields.</p>').'</details>';
+    }
     $recordTitle=$maintenance?($row['kind']==='club'?'Club Record: ':'Event Record: ').($payload['name']??$payload['title']??('#'.$id)):'Review #'.$id;
     $publicLink=$maintenance&&$row['status']==='approved'?'<p><a href="'.($row['kind']==='club'?'/find-a-club/?club=approved-'.$id:'/competitions/').'">View published '.h($row['kind']).' →</a></p>':'';
-    page($recordTitle,$top.$publicLink.(isset($_GET['saved'])?'<p role="status">Changes Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="'.($maintenance?'maintain':'review').'"><input type="hidden" name="id" value="'.$id.'"><input type="hidden" name="view" value="'.h($view).'">'.form_fields($row['kind'],$payload).'<div class="field"><label for="status">'.($maintenance?'Publication Status':'Review Decision').'</label><select id="status" name="status">'.$options.'</select></div><div class="field"><label for="note">'.($maintenance?'Internal Maintenance Note':'Internal Review Note').'</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($maintenance?'':($row['reviewer_note']??'')).'</textarea></div><button class="btn btn-dark">'.($maintenance?'Save record':'Save decision').'</button></form><h2>Review and Maintenance History</h2><ul>'.$log.'</ul>');exit;
+    page($recordTitle,$top.$publicLink.(isset($_GET['saved'])?'<p role="status">Changes Saved.</p>':'').errors_html($errors).'<div class="panel"><p><strong>Contact:</strong> '.h($row['contact_name']).' — <a href="mailto:'.h($row['contact_email']).'">'.h($row['contact_email']).'</a>'.(!empty($row['contact_phone'])?' — '.h((string)$row['contact_phone']):'').'</p><p>Status: '.h($row['status']).'</p></div><form method="post" class="panel portal-form"><input type="hidden" name="csrf" value="'.h(csrf()).'"><input type="hidden" name="action" value="'.($maintenance?'maintain':'review').'"><input type="hidden" name="id" value="'.$id.'"><input type="hidden" name="view" value="'.h($view).'">'.form_fields($row['kind'],$payload).'<div class="field"><label for="status">'.($maintenance?'Publication Status':'Review Decision').'</label><select id="status" name="status">'.$options.'</select></div>'.(!$maintenance?'<div class="field"><label for="message">Message to Submitter (required for Changes Requested)</label><textarea id="message" name="message" maxlength="4000" rows="4">'.h(is_string($_POST['message']??null)?$_POST['message']:'').'</textarea><p>Only this message is emailed. Saving Changes Requested again issues a fresh link and invalidates the previous one.</p></div>':'').'<div class="field"><label for="note">'.($maintenance?'Internal Maintenance Note':'Internal Review Note').'</label><textarea id="note" name="note" maxlength="4000" rows="4">'.h($maintenance?'':($row['reviewer_note']??'')).'</textarea></div><button class="btn btn-dark">'.($maintenance?'Save record':'Save decision').'</button></form><h2>Review and Maintenance History</h2><ul>'.$log.'</ul><h2>Previous Versions</h2>'.($versions?:'<p>No previous versions yet.</p>'));exit;
 }
 if ($maintenance) {
     $kind=$view==='clubs'?'club':'event';
