@@ -23,6 +23,13 @@ function config(): array {
     if (!is_array($cfg)) throw new RuntimeException('Invalid configuration');
     return $cfg;
 }
+function submissions_has_contact_phone(PDO $pdo): bool {
+    static $hasColumn = null;
+    if (is_bool($hasColumn)) return $hasColumn;
+    $query = $pdo->query("SHOW COLUMNS FROM submissions LIKE 'contact_phone'");
+    $hasColumn = (bool)$query->fetch();
+    return $hasColumn;
+}
 function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 function session_start_safe(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
@@ -47,32 +54,32 @@ function check_csrf(): void {
 }
 function fields(string $kind): array {
     if ($kind === 'club') return [
-        'name'=>['Club name','text',true,160],
-        'area'=>['Council area','text',true,160],
-        'town'=>['Town / location','text',true,160],
-        'venue'=>['Venue and address','textarea',true,500],
-        'sessions'=>['Session days and times','textarea',true,1000],
-        'eligibility'=>['Age groups and men’s / women’s / mixed sessions','textarea',true,1000],
-        'cost'=>['Membership / session cost','text',false,200],
-        'description'=>['Club description','textarea',true,3000],
-        'accessibility'=>['Accessibility information','textarea',false,1000],
-        'website'=>['Club website','url',false,500],
+        'name'=>['Club Name','text',true,160],
+        'area'=>['Council Area','text',true,160],
+        'town'=>['Town / Location','text',true,160],
+        'venue'=>['Venue and Address','textarea',true,500],
+        'sessions'=>['Session Days and Times','textarea',true,1000],
+        'eligibility'=>['Age Groups and Men’s / Women’s / Mixed Sessions','textarea',true,1000],
+        'cost'=>['Membership / Session Cost','text',false,200],
+        'description'=>['Club Description','textarea',true,3000],
+        'accessibility'=>['Accessibility Information','textarea',false,1000],
+        'website'=>['Club Website','url',false,500],
         'social'=>['Club social media URL','url',false,500],
-        'public_email'=>['Public club email (optional, published if approved)','email',false,254],
+        'public_email'=>['Public Club Email (Optional, Published If Approved)','email',false,254],
     ];
     return [
-        'title'=>['Event title','text',true,160],
-        'club'=>['Organising club','text',true,160],
-        'type'=>['Event type','text',true,160],
-        'startDate'=>['Start date','date',true,10],
-        'endDate'=>['End date (if different)','date',false,10],
-        'time'=>['Start / end times (UK time)','text',false,100],
-        'venue'=>['Venue and address','textarea',true,500],
-        'eligibility'=>['Eligibility / age categories','textarea',false,1000],
-        'cost'=>['Cost and entry details','text',false,200],
-        'description'=>['Event description','textarea',true,3000],
-        'registration'=>['Registration / information URL','url',false,500],
-        'poster'=>['Poster URL (optional; no file upload)','url',false,500],
+        'title'=>['Event Title','text',true,160],
+        'club'=>['Organising Club','text',true,160],
+        'type'=>['Event Type','text',true,160],
+        'startDate'=>['Start Date','date',true,10],
+        'endDate'=>['End Date (If Different)','date',false,10],
+        'time'=>['Start / End Times (UK Time)','text',false,100],
+        'venue'=>['Venue and Address','textarea',true,500],
+        'eligibility'=>['Eligibility / Age Categories','textarea',false,1000],
+        'cost'=>['Cost and Entry Details','text',false,200],
+        'description'=>['Event Description','textarea',true,3000],
+        'registration'=>['Registration / Information URL','url',false,500],
+        'poster'=>['Poster URL (Optional; No File Upload)','url',false,500],
     ];
 }
 function valid_date(string $s): bool {
