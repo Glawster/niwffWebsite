@@ -116,6 +116,7 @@ function form_fields(string $kind,array $values=[]): string {
 function page(string $title,string $body): void {
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store');
+    header('Referrer-Policy: no-referrer');
     header("X-Robots-Tag: noindex, nofollow");
     echo '<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>'.h($title).' | NIWFF</title><link rel="stylesheet" href="/assets/site.css"><header class="site-header"><div class="shell header-row"><a class="brand" href="/">NI Walking Football Federation</a><nav><a style="color:white" href="/competitions/">Events</a> · <a style="color:white" href="/find-a-club/">Find a Club</a></nav></div></header><main class="shell section"><h1>'.h($title).'</h1>'.$body.'<footer class="portal-version"></footer></main></html>';
 }
@@ -128,7 +129,7 @@ function notify_admin(int $id,string $kind): void {
     // Never include submitted personal data in notification email.
     @mail($c['admin_email'],'NIWFF submission awaiting review','A new '.$kind.' submission #'.$id.' is waiting in the NIWFF administration dashboard.','From: '.$c['from_email']);
 }
-function notify_submitter_review(array $submission,string $status,string $note): string {
+function notify_submitter_review(array $submission,string $status,string $note,string $amendUrl=''): string {
     $to = trim((string)($submission['contact_email'] ?? ''));
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return 'Email not sent (no valid contact email).';
     if ($status === 'pending') return 'Email not sent (status returned to pending).';
@@ -142,12 +143,29 @@ function notify_submitter_review(array $submission,string $status,string $note):
     $body = "Your NIWFF submission has been reviewed.\n"
         ."Status: {$prettyStatus}\n\n"
         .($note !== '' ? "Reviewer note:\n{$note}\n\n" : '')
-        ."You may submit an updated request if changes are needed.\n";
+        .($amendUrl!=='' ? "Amend your existing submission (link expires in 14 days):\n{$amendUrl}\n" : "Thank you for your submission.\n");
     $headers = "From: {$from}\r\nReply-To: {$from}\r\nContent-Type: text/plain; charset=UTF-8";
 
     return @mail($to, $subject, $body, $headers)
         ? 'Email sent to '.$to.'.'
         : 'Email failed to '.$to.'.';
+}
+function amendment_url(string $token): string {
+    $base=rtrim((string)(config()['site_base_url']??''),'/');
+    if (!preg_match('~^https://[a-zA-Z0-9.-]+(?::[0-9]+)?$~D',$base)) throw new RuntimeException('Configure site_base_url before requesting changes.');
+    return $base.'/submit.php?amend='.rawurlencode($token);
+}
+function issue_amendment(PDO $pdo,int $id,string $message): string {
+    $token=bin2hex(random_bytes(32)); $url=amendment_url($token);
+    $q=$pdo->prepare("INSERT INTO submission_amendments(submission_id,token_hash,expires_at,message) VALUES(?,?,DATE_ADD(UTC_TIMESTAMP(),INTERVAL 14 DAY),?) ON DUPLICATE KEY UPDATE token_hash=VALUES(token_hash),expires_at=VALUES(expires_at),message=VALUES(message)");
+    $q->execute([$id,hash('sha256',$token),$message]);
+    return $url;
+}
+function revoke_amendment(PDO $pdo,int $id): void {
+    $q=$pdo->prepare('DELETE FROM submission_amendments WHERE submission_id=?');$q->execute([$id]);
+}
+function save_revision(PDO $pdo,int $id,string $actor,string $payload): void {
+    $q=$pdo->prepare('INSERT INTO submission_revisions(submission_id,actor,payload) VALUES(?,?,?)');$q->execute([$id,$actor,$payload]);
 }
 function admin(): ?array {
     if (empty($_SESSION['admin_id'])) return null;
