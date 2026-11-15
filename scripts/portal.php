@@ -160,11 +160,11 @@ function page(string $title,string $body): void {
 function errors_html(array $errors): string {
     return $errors?'<div class="notice" role="alert"><ul>'.implode('',array_map(fn($e)=>'<li>'.h($e).'</li>',$errors)).'</ul></div>':'';
 }
-function notify_admin(int $id,string $kind): void {
+function notify_admin(int $id,string $kind,bool $amended=false): void {
     $c=config();
     if (!filter_var($c['admin_email']??'',FILTER_VALIDATE_EMAIL) || !filter_var($c['from_email']??'',FILTER_VALIDATE_EMAIL)) return;
     // Never include submitted personal data in notification email.
-    @mail($c['admin_email'],'NIWFF submission awaiting review','A new '.$kind.' submission #'.$id.' is waiting in the NIWFF administration dashboard.','From: '.$c['from_email']);
+    @mail($c['admin_email'],($amended?'NIWFF amended submission awaiting review':'NIWFF submission awaiting review'),($amended?'An amended ':'A new ').$kind.' submission #'.$id.' is waiting in the NIWFF administration dashboard.','From: '.$c['from_email']);
 }
 function notify_submitter_review(array $submission,string $status,string $note,string $amendUrl=''): string {
     $to = trim((string)($submission['contact_email'] ?? ''));
