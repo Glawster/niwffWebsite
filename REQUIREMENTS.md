@@ -113,8 +113,8 @@ Backlog item — content model and historical source data prepared; page impleme
 
 ### Federation links, contact and historical archives
 
-- Provide direct links to the Irish FA website, its walking football resources and the confirmed NI Walking Football Facebook Group (https://www.facebook.com/groups/602931127880903/).
-- Use a federation-owned general enquiries mailbox, proposed as info@niwalkingfootball.com. Do not activate the email link until the mailbox and delivery have been confirmed.
+- Place external federation links (Irish FA website, Irish FA walking football resources, NI Walking Football Facebook Group and current live NIWFF website during staging) only in a Useful Links section on Resources, not in the shared footer or Contact page.
+- All public and PHP workflow footers shall display a direct mailto link labelled Contact us at info@niwalkingfootball.com. The Contact page shall use the same mailbox for enquiries. Verify mailbox delivery before production launch.
 - Events shall provide a navigable monthly calendar of approved forthcoming events and a distinct Past Events section. Completed events move into history according to their end date, not their publication date.
 - All historical collections, including past events, news, match reports, photographs and team history, shall use the same rolling current-year plus previous four calendar-year tabs and an OLDER tab (2026, 2025, 2024, 2023, 2022, OLDER at initial implementation). The tabs roll forward automatically on 1 January UK time. Older records remain accessible; undated records are separately identified for editorial review rather than assigned invented dates.
 - Historical event listings must not imply results or confirmed attendance; photos require verified date, caption and permission before publishing.

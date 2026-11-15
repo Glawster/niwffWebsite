@@ -2,7 +2,7 @@
 
 ## Purpose and architecture
 
-The NIWFF website is the federation's authoritative information and publication platform. It serves prospective players, affiliated and prospective clubs, international squads, event organisers and the website administration team. Social media complements the website; the approved NIWFF Facebook Group is https://www.facebook.com/groups/602931127880903/ . The Irish FA website is https://www.irishfa.com/ . The proposed general contact address is info@niwalkingfootball.com, pending mailbox provisioning and delivery testing.
+The NIWFF website is the federation's authoritative information and publication platform. It serves prospective players, affiliated and prospective clubs, international squads, event organisers and the website administration team. Social media complements the website; the approved NIWFF Facebook Group is https://www.facebook.com/groups/602931127880903/ . The Irish FA website is https://www.irishfa.com/ . The general contact address is info@niwalkingfootball.com, displayed as a direct email link on all footers and Contact. Mailbox provisioning and delivery must be verified before production. External federation links appear only under Useful Links on Resources.
 
 The current implementation combines HTML/CSS/JavaScript public pages with PHP 8.1+ and PDO MySQL/MariaDB submission, review and publication services. The Git checkout remains the cPanel document root, with Apache denying access to repository metadata, migration archives, scripts and project documentation. Database configuration and credentials live outside the web root. No separate build or copy operation is required for normal deployment.
 
@@ -16,9 +16,9 @@ The current implementation combines HTML/CSS/JavaScript public pages with PHP 8.
 | International Teams | Age-group squad pages, current squad and management, fixtures, results, historical reports |
 | News | News and match reports |
 | Photos | Photo collections by event and year |
-| Resources | Rules and guidance, Irish FA resources |
+| Resources | Rules and guidance, Useful Links (Irish FA, walking football, Facebook Group, current live website during staging) |
 | About | Federation purpose, governance, policies |
-| Contact | Federation contact and Facebook Group |
+| Contact | Federation general enquiries email |
 | Administration | Authenticated review queue, decisions, audit history |
 
 Historical collections use the same rolling current year plus four previous calendar years and OLDER tabs, e.g. 2026 | 2025 | 2024 | 2023 | 2022 | OLDER. They roll forward on 1 January UK time. Undated records remain separately identified. Approved events move to history after their end date.

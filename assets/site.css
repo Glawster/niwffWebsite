@@ -175,3 +175,5 @@ h3{font-size:1.2rem}
 
 .event-venue-picker{padding:16px;background:#f7faf9;border:1px solid #bfd2d2;border-radius:10px}
 .event-venue-picker p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+
+.footer-links a,.portal-version a{overflow-wrap:anywhere}
