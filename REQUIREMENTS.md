@@ -145,3 +145,5 @@ Status: initial staging implementation committed; database provisioning, end-to-
 Status: implemented on the admin development branch; database migration, outbound email and browser acceptance tests required before production.
 
 - Create an Event, event amendment and Event Maintenance forms shall offer an alphabetically sorted, deduplicated venue dropdown populated from approved structured club locations and approved event venues. Selecting a venue fills the editable name/address field. Unknown venues must remain valid; approved new event venues become available for subsequent events. Pending, rejected, withdrawn and ambiguous legacy free-text club locations shall not be automatically added. Existing event locations are preserved even if no longer in the dropdown. Manual entry remains available without JavaScript.
+
+- Club forms shall offer a Council Area dropdown using existing directory area labels and approved club database values; retain a previously saved area even when not in the standard options.
